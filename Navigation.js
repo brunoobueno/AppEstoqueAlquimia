@@ -17,7 +17,7 @@ function Navigation() {
         <Stack.Screen name="Splash" component={SplashScreenComponent} options={{ headerShown: false }} />
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
         <Stack.Screen name="OperatorDashboard" component={OperatorDashboardScreen} />
-        <Stack.Screen name="CadastroProduto" component={CadastroProduto} />
+        <Stack.Screen name="RegistrationProduct" component={CadastroProduto} />
       </Stack.Navigator>
     </NavigationContainer>
   );

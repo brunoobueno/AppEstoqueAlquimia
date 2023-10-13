@@ -2,7 +2,6 @@ const express = require('express');
 const mysql = require('mysql2/promise');
 const cors = require('cors'); // Importe o módulo CORS
 
-
 const app = express();
 const port = 3000;
 
@@ -16,7 +15,7 @@ const db = mysql.createPool({
 
 app.use(express.json());
 
-// Use o middleware CORS para permitir solicitações de qualquer origem
+// Use o middleware CORS com as opções personalizadas
 app.use(cors());
 
 // Rota de autenticação
@@ -39,6 +38,19 @@ app.post('/login', async (req, res) => {
     res.status(500).json({ message: 'Erro interno do servidor' });
   }
 });
+
+// Rota para buscar todos os produtos
+app.get('/produtos', async (req, res) => {
+  try {
+    // Consulta ao banco de dados para buscar todos os produtos
+    const [rows] = await db.query('SELECT * FROM produto_final');
+    res.status(200).json(rows); // Retorne os dados dos produtos como JSON
+  } catch (error) {
+    console.error('Erro ao buscar produtos:', error);
+    res.status(500).json({ message: 'Erro interno do servidor' });
+  }
+});
+
 
 app.listen(port, () => {
   console.log(`Servidor API rodando na porta ${port}`);

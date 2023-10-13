@@ -1,83 +1,79 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Button, FlatList, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-
+import axios from 'axios';
 
 const OperatorDashboardScreen = () => {
-  const [lowStockProducts, setLowStockProducts] = useState([]);
   const [allProducts, setAllProducts] = useState([]);
-  const [showAllProducts, setShowAllProducts] = useState(false);
   const navigation = useNavigation();
 
-  
-
-  // Exemplo: Produtos com menor quantidade em estoque
   useEffect(() => {
-    // Consulta ao banco de dados ou API para buscar produtos com estoque baixo
-    // Atualiza o estado lowStockProducts com os dados obtidos
-    // Exemplo:
-    const lowStockData = [
-      { id: 1, name: 'Produto 1', quantity: 5 },
-      { id: 2, name: 'Produto 2', quantity: 10 },
-      // Outros produtos com estoque baixo
-    ];
-    setLowStockProducts(lowStockData);
-  }, []);
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get('http://192.168.1.9:3000/produtos');
+        setAllProducts(response.data); // Defina todos os produtos da resposta da API
+      } catch (error) {
+        console.error('Erro ao buscar produtos:', error);
+      }
+    };
 
-  // Exemplo: Lista de produtos (25 primeiros ou todos, dependendo da escolha do usuário)
-  useEffect(() => {
-    // Consulta ao banco de dados ou API para buscar todos os produtos
-    // Atualiza o estado allProducts com os dados obtidos
-    // Exemplo:
-    const allProductsData = [
-      { id: 1, name: 'Produto 1', quantity: 50 },
-      { id: 2, name: 'Produto 2', quantity: 30 },
-      // Outros produtos
-    ];
-    setAllProducts(allProductsData);
+    fetchProducts();
   }, []);
-
-  const toggleShowAllProducts = () => {
-    setShowAllProducts(!showAllProducts);
-  };
-  const handleCadastrarProduto = () => {
-    // Navegar para a tela de CadastroProduto
-    navigation.navigate('CadastroProduto');
-  };
 
   return (
     <View style={styles.container}>
       <View style={styles.dashboard}>
         <Text style={styles.dashboardTitle}>Dashboard</Text>
-        <Text>Produtos com Menor Estoque:</Text>
-        <FlatList
-          data={lowStockProducts}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <Text>{`${item.name}: ${item.quantity} unidades`}</Text>
-          )}
-        />
-        {/* Outras informações da dashboard podem ser adicionadas aqui */}
+        <View style={styles.dashboardInfo}>
+          {/* Informações da dashboard lado a lado */}
+          <View style={styles.dashboardItem}>
+            <Text>Info 1:</Text>
+            <Text>Valor</Text>
+          </View>
+          <View style={styles.dashboardItem}>
+            <Text>Info 2:</Text>
+            <Text>Valor</Text>
+          </View>
+          <View style={styles.dashboardItem}>
+            <Text>Info 3:</Text>
+            <Text>Valor</Text>
+          </View>
+          <View style={styles.dashboardItem}>
+            <Text>Info 4:</Text>
+            <Text>Valor</Text>
+          </View>
+        </View>
       </View>
 
       <View style={styles.productList}>
         <Text style={styles.productListTitle}>Lista de Produtos</Text>
-        {showAllProducts ? (
+        {allProducts.length > 0 ? (
           <FlatList
             data={allProducts}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={(item) => item.idProduto_final.toString()} // Atualize a chave para corresponder ao ID real
             renderItem={({ item }) => (
-              <Text>{`${item.name}: ${item.quantity} unidades`}</Text>
+              <Text>{item.nome_produto}</Text> // Use item.nome_produto
             )}
           />
         ) : (
-          <Button title="Ver Todos" onPress={toggleShowAllProducts} />
+          <Text>Nenhum produto disponível. Realize o cadastro dos produtos na API.</Text>
         )}
       </View>
 
       <View style={styles.bottomButtons}>
-        <Button title="Cadastrar Produto" onPress={handleCadastrarProduto} /> { /* Navegar para a tela de Cadastrar Produto */ }
-        <Button title="Atualizar Estoque" onPress={() => { /* Navegar para a tela de atualização de estoque */ }} />
+        <Button
+          title="Cadastrar Produto"
+          onPress={() => {
+            navigation.navigate('RegistrationProduct'); // Navegar para a tela de cadastro de produto
+          }}
+        />
+        <Button
+          title="Atualizar Produto"
+          onPress={() => {
+            // Navegar para a tela de atualização de produto
+            // Implemente a navegação de acordo com sua configuração de rotas
+          }}
+        />
       </View>
     </View>
   );
@@ -96,12 +92,20 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
+  dashboardInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  dashboardItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
   productList: {
     flex: 1,
   },
-  productListTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+  productListItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     marginBottom: 8,
   },
   bottomButtons: {
