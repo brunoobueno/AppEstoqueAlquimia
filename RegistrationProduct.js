@@ -7,11 +7,6 @@ const CadastroProduto = () => {
   const [nomeProduto, setNomeProduto] = useState('');
   const navigation = useNavigation();
 
-  const handleNext = () => {
-    // ir para a tela de quantidade
-    navigation.navigate('QuantidadeProduto', { nomeProduto });
-  };
-
   return (
     <View style={styles.container}>
       <TextInput
@@ -20,7 +15,12 @@ const CadastroProduto = () => {
         onChangeText={(text) => setNomeProduto(text)}
         value={nomeProduto}
       />
-      <Button title="Próximo" onPress={handleNext} />
+       <Button
+          title="Próximo"
+          onPress={() => {
+            navigation.navigate('QuantilyProduct'); // Navegar para a tela de cadastro de Quantidade
+          }}
+        />
     </View>
   );
 };
