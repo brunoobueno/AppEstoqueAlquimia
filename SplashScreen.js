@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
-import { View, Image, StyleSheet, Text } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import { useNavigation } from '@react-navigation/native';
-// ...
+import { Color, FontFamily, FontSize } from './GlobalStyles';
 
 const SplashScreenComponent = () => {
   const navigation = useNavigation();
@@ -16,35 +16,62 @@ const SplashScreenComponent = () => {
   }, []);
 
   return (
-    <View style={styles.container}>
-      <Image source={require('./assets/logo.png')} style={styles.logo} />
-      <Text style={styles.footerText}>Todos os direitos reservados para Alquimia Indústria</Text>
-      <Image source={require('./assets/animacao.gif')} style={styles.loadingGif} />
+    <View style={styles.splashScreen}>
+      <View style={styles.centered}>
+        <Image
+          style={styles.logoIcon}
+          contentFit="cover"
+          source={require('./assets/logo-branca.png')}
+        />
+      </View>
+
+      <View style={styles.centered}>
+        <Image
+          style={styles.loadingGif}
+          source={require('./assets/animacao.gif')} // Substitua com o caminho do seu gif
+        />
+      </View>
+
+      <View style={styles.centered}>
+        <Text style={styles.textTypo}>
+          {`desenvolvido`}
+        </Text>
+        <Text style={styles.textTypo}>
+          {`SPECTRUM SOLUTIONS`}
+        </Text>
+        <Text style={styles.textTypo}>
+          {`© 2023 alquimia indústria. Todos os direitos reservados.`}
+        </Text>
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  splashScreen: {
     flex: 1,
+    backgroundColor: '#1a1a27',
+    justifyContent: 'space-around',
+  },
+  centered: {
     alignItems: 'center',
     justifyContent: 'center',
   },
-  logo: {
-    width: 100,
-    height: 100,
-    resizeMode: 'contain',
+  textTypo: {
+    color: Color.colorWhite,
+    fontFamily: FontFamily.montserratRegular,
+    textAlign: 'center',
+    fontSize: FontSize.size_xs,
+    marginVertical: 2, // Ajuste o espaçamento vertical entre os textos
   },
-  footerText: {
-    marginTop: 10,
-    fontSize: 12,
-    color: 'gray', // Cor do texto
-    marginTop: 20,
+  logoIcon: {
+    width: 151,
+    height: 151,
+    marginTop: 200,
   },
   loadingGif: {
-    width: 30,
-    height: 30,
-    marginTop: 80,
+    width: 80,
+    height: 80,
   },
 });
 

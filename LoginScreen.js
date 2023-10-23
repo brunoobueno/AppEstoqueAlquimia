@@ -1,19 +1,18 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native'; // Importe useNavigation
+import * as React from 'react';
+import { Image, View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { FontSize, Color, FontFamily, Padding } from './GlobalStyles';
 import axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
 
 
 const LoginScreen = () => {
+  const navigation = useNavigation();
 
-  const navigation = useNavigation(); // Inicialize o objeto de navegação
-
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [isEmailValid, setIsEmailValid] = useState(true);
-  const [errorText, setErrorText] = useState('');
-
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [showPassword, setShowPassword] = React.useState(false);
+  const [isEmailValid, setIsEmailValid] = React.useState(true);
+  const [errorText, setErrorText] = React.useState('');
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -37,11 +36,11 @@ const LoginScreen = () => {
       } else {
         // Autenticação falhou
         if (response.data.message === 'Senha incorreta') {
-          setErrorText('Senha incorreta');
+          setErrorText1('Senha incorreta');
         } else if (response.data.message === 'E-mail não cadastrado') {
-          setErrorText('E-mail não cadastrado');
+          setErrorText2('E-mail não cadastrado');
         } else {
-          setErrorText('Erro desconhecido');
+          setErrorText3('Erro desconhecido');
         }
       }
     } catch (error) {
@@ -51,7 +50,7 @@ const LoginScreen = () => {
   };
 
   const isValidEmail = (email) => {
-    const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+    const emailPattern = /^[a-zA-Z0-9._-]+@[a-zAZ.-]+\.[a-zA-Z]{2,4}$/;
     return emailPattern.test(email);
   };
 
@@ -66,18 +65,17 @@ const LoginScreen = () => {
   return (
     <View style={styles.container}>
       <Image source={require('./assets/logo.png')} style={styles.logo} />
-
+      <Text style={styles.emailContainer}>Email</Text>
       <TextInput
-        placeholder="E-mail"
+        placeholder="Digite seu e-mail"
         onChangeText={handleEmailChange}
         style={[styles.input, !isEmailValid ? styles.errorInput : null]}
       />
-
       {errorText !== '' && <Text style={styles.errorText}>{errorText}</Text>}
-
+      <Text style={styles.senhaContainer}>Senha</Text>
       <View style={styles.passwordContainer}>
         <TextInput
-          placeholder="Senha"
+          placeholder="Digite sua senha"
           secureTextEntry={!showPassword}
           onChangeText={(text) => setPassword(text)}
           style={styles.input}
@@ -89,7 +87,6 @@ const LoginScreen = () => {
           />
         </TouchableOpacity>
       </View>
-
       <TouchableOpacity onPress={handleLogin} style={styles.loginButton}>
         <Text style={styles.loginButtonText}>Login</Text>
       </TouchableOpacity>
@@ -104,9 +101,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   logo: {
-    width: 200,
-    height: 200,
+    width: 150,
+    height: 150,
     resizeMode: 'contain',
+    marginBottom: 70,
   },
   input: {
     width: 300,
@@ -116,6 +114,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingHorizontal: 10,
     marginVertical: 10,
+    fontFamily: FontFamily.montserratRegular,
   },
   passwordContainer: {
     flexDirection: 'row',
@@ -132,10 +131,11 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   loginButton: {
-    backgroundColor: 'blue',
+    backgroundColor: '#1A1A27',
     paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingHorizontal: 50,
     borderRadius: 5,
+    marginVertical: 10,
   },
   loginButtonText: {
     color: 'white',
@@ -148,8 +148,22 @@ const styles = StyleSheet.create({
   errorText: {
     color: 'red',
     fontSize: 14,
-    marginTop: 5, // Espaço para evitar sobreposição com outros elementos
+    marginTop: 5,
   },
+  entrarContainer: {
+    textAlign: 'left',
+    marginBottom: 30,
+    fontFamily: FontFamily.montserratRegular,
+  },
+  emailContainer: {
+    fontSize: 10,
+    fontFamily: FontFamily.montserratRegular,
+  },
+  senhaContainer: {
+    textAlign: 'left',
+    fontSize: 10,
+    fontFamily: FontFamily.montserratRegular,
+  }
 });
 
 export default LoginScreen;

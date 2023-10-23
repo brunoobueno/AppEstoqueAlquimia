@@ -1,11 +1,19 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import Navigation from './Navigation'; // Importe o componente de navegação
-
+import { useFonts } from '@expo-google-fonts/montserrat';
+import Navigation from './Navigation';
 
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    Montserrat: require('./Fonts/Montserrat-Regular.ttf'), // Verifique o caminho do arquivo
+  });
+
+  if (!fontsLoaded) {
+    return null; // Aguarde até que as fontes estejam carregadas
+  }
+
   return (
-<View style={{ flex: 1 }}>
+    <View style={{ flex: 1 }}>
       <Navigation />
     </View>
   );
