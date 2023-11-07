@@ -1,7 +1,6 @@
 const express = require('express');
 const mysql = require('mysql2/promise');
 const cors = require('cors'); // Importe o módulo CORS
-
 const app = express();
 const port = 3000;
 
@@ -50,7 +49,6 @@ app.get('/produtos', async (req, res) => {
     res.status(500).json({ message: 'Erro interno do servidor' });
   }
 });
-
 
 app.listen(port, () => {
   console.log(`Servidor API rodando na porta ${port}`);

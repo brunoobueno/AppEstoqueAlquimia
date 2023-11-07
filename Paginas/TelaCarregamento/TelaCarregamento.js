@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import { useNavigation } from '@react-navigation/native';
-import { Color, FontFamily, FontSize } from './GlobalStyles';
+import { Color, FontFamily, FontSize } from '../../EstilosGlobais/GlobalStyles';
 
 const SplashScreenComponent = () => {
   const navigation = useNavigation();
@@ -21,14 +21,14 @@ const SplashScreenComponent = () => {
         <Image
           style={styles.logoIcon}
           contentFit="cover"
-          source={require('./assets/logo-branca.png')}
+          source={require('../../imagens/logo-branca.png')}
         />
       </View>
 
       <View style={styles.centered}>
         <Image
           style={styles.loadingGif}
-          source={require('./assets/animacao.gif')} // Substitua com o caminho do seu gif
+          source={require('../../imagens/animacao.gif')} // Substitua com o caminho do seu gif
         />
       </View>
 

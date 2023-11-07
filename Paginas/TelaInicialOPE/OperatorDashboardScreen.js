@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, FlatList, StyleSheet } from 'react-native';
+import { StyleSheet, View, Text, Button, FlatList,} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 
@@ -10,7 +10,7 @@ const OperatorDashboardScreen = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get('http://192.168.1.9:3000/produtos');
+        const response = await axios.get('http://localhost:3000/produtos');
         setAllProducts(response.data); // Defina todos os produtos da resposta da API
       } catch (error) {
         console.error('Erro ao buscar produtos:', error);
@@ -44,7 +44,6 @@ const OperatorDashboardScreen = () => {
           </View>
         </View>
       </View>
-
       <View style={styles.productList}>
         <Text style={styles.productListTitle}>Lista de Produtos</Text>
         {allProducts.length > 0 ? (
@@ -85,9 +84,13 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: '#fff',
   },
+  
   dashboard: {
     marginBottom: 16,
   },
+  container: {
+    flex: 1,
+  }, 
   dashboardTitle: {
     fontSize: 18,
     fontWeight: 'bold',

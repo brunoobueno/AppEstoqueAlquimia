@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Image, View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import { FontSize, Color, FontFamily, Padding } from './GlobalStyles';
+import { FontSize, Color, FontFamily, Padding } from '../../EstilosGlobais/GlobalStyles';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 
@@ -25,7 +25,7 @@ const LoginScreen = () => {
       return;
     }
     try {
-      const response = await axios.post('http://192.168.1.9:3000/login', {
+      const response = await axios.post('http://localhost:3000/login', {
         email: email,
         password: password,
       });
@@ -64,7 +64,7 @@ const LoginScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Image source={require('./assets/logo.png')} style={styles.logo} />
+      <Image source={require('../../imagens/logo.png')} style={styles.logo} />
       <Text style={styles.emailContainer}>Email</Text>
       <TextInput
         placeholder="Digite seu e-mail"
@@ -82,13 +82,13 @@ const LoginScreen = () => {
         />
         <TouchableOpacity onPress={togglePasswordVisibility} style={styles.eyeIconContainer}>
           <Image
-            source={showPassword ? require('./assets/olho-aberto.png') : require('./assets/olho-fechado.png')}
+            source={showPassword ? require('../../imagens/olho-aberto.png') : require('../../imagens/olho-fechado.png')}
             style={styles.eyeIcon}
           />
         </TouchableOpacity>
       </View>
       <TouchableOpacity onPress={handleLogin} style={styles.loginButton}>
-        <Text style={styles.loginButtonText}>Login</Text>
+        <Text style={styles.loginButtonText}>Entrar</Text>
       </TouchableOpacity>
     </View>
   );

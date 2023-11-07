@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useFonts } from '@expo-google-fonts/montserrat';
-import Navigation from './Navigation';
+import Navigation from './components/Navegação/Navigation';
 
 export default function App() {
   const [fontsLoaded] = useFonts({
