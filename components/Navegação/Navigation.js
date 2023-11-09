@@ -14,8 +14,7 @@ function Navigation() {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Splash">
-        <Stack.Screen name="Splash" component={SplashScreenComponent} options={{ headerShown: false }} />
-        <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+
         <Stack.Screen name="OperatorDashboard" component={OperatorDashboardScreen} />
         <Stack.Screen name="RegistrationProduct" component={RegistrationProduct} />
         <Stack.Screen name="RegisteredProduct" component={RegisteredProduct} />

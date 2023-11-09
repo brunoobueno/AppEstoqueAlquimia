@@ -42,7 +42,7 @@ app.post('/login', async (req, res) => {
 app.get('/produtos', async (req, res) => {
   try {
     // Consulta ao banco de dados para buscar todos os produtos
-    const [rows] = await db.query('SELECT * FROM produto_final');
+    const [rows] = await db.query('SELECT * FROM ins_insumo');
     res.status(200).json(rows); // Retorne os dados dos produtos como JSON
   } catch (error) {
     console.error('Erro ao buscar produtos:', error);
