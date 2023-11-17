@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, Pressable, View, TextInput } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, TextInput, Pressable, BackHandler } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
+import { FontSize, Color, FontFamily, Padding } from '../../EstilosGlobais/GlobalStyles';
 
 const RegistrationProduct = () => {
   const navigation = useNavigation();
@@ -13,6 +15,17 @@ const RegistrationProduct = () => {
 
   const [batchNumber, setBatchNumber] = useState('');
   const [showBatchError, setShowBatchError] = useState(false);
+
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', handleGoBack);
+
+    return () => backHandler.remove();
+  }, []);
+
+  const handleGoBack = () => {
+    navigation.goBack();
+    return true;
+  };
 
   const onPressFinalizar = () => {
     // Verificar se todas as informações estão corretas
@@ -39,10 +52,14 @@ const RegistrationProduct = () => {
 
   return (
     <View style={styles.container}>
+      <Pressable
+        style={styles.backButton}
+        onPress={handleGoBack}
+      >
+        <Ionicons name="arrow-back" size={24} color="#1A1A27" />
+      </Pressable>
       {/* Registro do Nome do Produto */}
-      <View style={styles.labelContainer}>
-        <Text style={styles.label}>NOME</Text>
-      </View>
+      <Text style={styles.label}>NOME</Text>
       <TextInput
         style={[styles.input, erroNome && styles.inputError]}
         placeholder="Digite o nome do produto"
@@ -54,10 +71,7 @@ const RegistrationProduct = () => {
       />
       <Text style={styles.errorMessage}>{erroNome}</Text>
 
-      {/* Quantidade do Produto */}
-      <View style={styles.labelContainer}>
-        <Text style={styles.label}>QUANTIDADE:</Text>
-      </View>
+      <Text style={styles.label}>QUANTIDADE:</Text>
       <TextInput
         style={[styles.input, showQuantityError && styles.inputError]}
         placeholder="Digite a quantidade do produto"
@@ -74,10 +88,7 @@ const RegistrationProduct = () => {
         </Text>
       )}
 
-      {/* Número do Lote */}
-      <View style={styles.labelContainer}>
-        <Text style={styles.label}>LOTE:</Text>
-      </View>
+      <Text style={styles.label}>LOTE:</Text>
       <TextInput
         style={[styles.input, showBatchError && styles.inputError]}
         placeholder="Digite o lote do produto"
@@ -91,10 +102,10 @@ const RegistrationProduct = () => {
         <Text style={styles.errorMessage}>Digite um lote válido!!!</Text>
       )}
 
-      {/* Botão Finalizar */}
-      <Pressable
+<Pressable
         style={styles.button}
-        onPress={onPressFinalizar}>
+        onPress={onPressFinalizar}
+      >
         <Text style={styles.buttonText}>CADASTRAR</Text>
       </Pressable>
     </View>
@@ -108,6 +119,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 22,
     padding: 16,
+    fontFamily: FontFamily.montserratRegular,
   },
   labelContainer: {
     marginBottom: 8,
@@ -117,21 +129,24 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 8,
     color: '#1A1A27',
+      fontFamily: FontFamily.montserratRegular,
   },
   input: {
     height: 40,
     width: 300,
     borderWidth: 1,
-    borderRadius: 360,
+    borderRadius: 12,
     paddingHorizontal: 10,
     marginBottom: 16,
   },
   errorMessage: {
     color: 'red',
     marginBottom: 16,
+    fontFamily: FontFamily.montserratRegular,
   },
   inputError: {
     borderColor: 'red',
+    fontFamily: FontFamily.montserratRegular,
   },
   button: {
     backgroundColor: '#1A1A27',
@@ -140,11 +155,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 50,
     elevation: 2,
     marginTop: 16,
+    fontFamily: FontFamily.montserratRegular,
   },
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
     textAlign: 'center',
+    fontFamily: FontFamily.montserratRegular,
+  },
+  backButton: {
+    position: 'absolute',
+    top: 16,
+    left: 16,
+    zIndex: 1,
   },
 });
 

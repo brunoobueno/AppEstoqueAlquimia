@@ -13,7 +13,7 @@ const Stack = createStackNavigator();
 function Navigation() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Splash">
+      <Stack.Navigator initialRouteName="Splash" screenOptions={{ headerShown: false }}>
 
         <Stack.Screen name="OperatorDashboard" component={OperatorDashboardScreen} />
         <Stack.Screen name="RegistrationProduct" component={RegistrationProduct} />

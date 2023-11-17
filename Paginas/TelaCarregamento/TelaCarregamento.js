@@ -11,8 +11,8 @@ const SplashScreenComponent = () => {
     // Lugar adicional para acrescentar uma nova lógica
     setTimeout(async () => {
       await SplashScreen.hideAsync();
-      navigation.replace('Login'); // Navegue para a tela de login após 2 segundos
-    }, 4000);
+      navigation.replace('LoginScreen'); // Navegue para a tela de login após 2 segundos
+    }, 2000);
   }, []);
 
   return (

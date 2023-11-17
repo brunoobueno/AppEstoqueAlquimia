@@ -5,16 +5,17 @@ import ListaProdutos from '../../components/ListaProdutos/ListaProdutos'; // Imp
 import axios from 'axios';
 
 const OperatorDashboardScreen = () => {
-  const [userType, setUserType] = useState('operador'); // Defina o estado inicial de userType
+  const [userType, setUserType] = useState('administrador'); // Defina o estado inicial de userType
   const [currentDate, setCurrentDate] = useState(''); // Defina o estado inicial de currentDate
   const [allProducts, setAllProducts] = useState([]);
+  const [estoqueBaixo, setEstoqueBaixo] = useState(0); // Novo estado para a quantidade de produtos com estoque baixo
   const navigation = useNavigation();
 
   const handleUserTypeChange = (value) => {
     setUserType(value);
 
     // Navegar para a página do administrador quando o tipo for 'administrador'
-    if (value === 'administrador') {
+    if (value === 'operador') {
       // Implemente a navegação para a página do administrador
       console.log('Navegar para a página do administrador');
     }
@@ -31,14 +32,24 @@ const OperatorDashboardScreen = () => {
     const fetchProducts = async () => {
       try {
         const response = await axios.get('http://localhost:3000/produtos');
-        setAllProducts(response.data); // Defina todos os produtos da resposta da API
+        setAllProducts(response.data);
       } catch (error) {
         console.error('Erro ao buscar produtos:', error);
       }
     };
 
+    const fetchEstoqueBaixo = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/estoque-baixo');
+        setEstoqueBaixo(response.data.quantidadeEstoqueBaixo);
+      } catch (error) {
+        console.error('Erro ao buscar produtos com estoque baixo:', error);
+      }
+    };
+
     setCurrentDate(getCurrentDate());
     fetchProducts();
+    fetchEstoqueBaixo(); // Chame a função para buscar a quantidade de produtos com estoque baixo
   }, []);
 
   return (
@@ -53,6 +64,26 @@ const OperatorDashboardScreen = () => {
           <Picker.Item label="Administrador" value="administrador" />
         </Picker>
 
+        <View style={styles.bottomButtons1}>
+        <Button
+          title="Cadastrar Produto"
+          onPress={() => {
+            navigation.navigate('RegistrationProduct'); // Navegar para a tela de cadastro de produto
+          }}
+          color="#1a1a27" // Cor do botão alterada para rgb(26, 26, 39)
+        />
+        </View>
+        <View style={styles.bottomButtons2}>
+        <Button
+          title="Atualizar Produto"
+          onPress={() => {
+            // Navegar para a tela de atualização de produto
+            // Implemente a navegação de acordo com sua configuração de rotas
+          }}
+          color="#1a1a27" // Cor do botão alterada para rgb(26, 26, 39)
+        />
+      </View>
+
         <View style={styles.dateContainer}>
           <View style={styles.dateLabelContainer}>
             <Text style={styles.dateLabel}>Data Atual</Text>
@@ -60,53 +91,63 @@ const OperatorDashboardScreen = () => {
           <View style={styles.dateValueContainer}>
             <Text style={styles.dateValue}>{currentDate}</Text>
           </View>
+          
         </View>
       </View>
 
       <View style={styles.dashboard}>
+
+
         <br></br>
         <br></br>
+
+
+        <View style={styles.dashboard}>
         <View style={styles.dashboardInfo}>
-          {/* Informações da dashboard lado a lado */}
-          <View style={styles.dashboardItem}>
-            <Text>Info 1:</Text>
-            <Text>Valor</Text>
+          {/* Dashboard Item 1 */}
+          <View style={styles.dashboardItem1}>
+          <View style={styles.dashboardValueContainer}>
+              <Text style={styles.dashboardValue}>{estoqueBaixo}</Text>
+              <Text style={styles.dashboardUnit}>Un.</Text>
+            </View>
+            <Text style={styles.dashboardTitle}>Produtos com Estoque Baixo</Text>
           </View>
-          <View style={styles.dashboardItem}>
-            <Text>Info 2:</Text>
-            <Text>Valor</Text>
+
+          {/* Dashboard Item 2 */}
+          <View style={styles.dashboardItem2}>
+          <View style={styles.dashboardValueContainer}>
+              <Text style={styles.dashboardValue}>{98}</Text>
+              <Text style={styles.dashboardUnit}>Un.</Text>
+            </View>
+            <Text style={styles.dashboardTitle}>Validade Próxima do Vencimento</Text>
           </View>
-          <View style={styles.dashboardItem}>
-            <Text>Info 3:</Text>
-            <Text>Valor</Text>
+
+          {/* Dashboard Item 3 */}
+          <View style={styles.dashboardItem3}>
+          <View style={styles.dashboardValueContainer}>
+              <Text style={styles.dashboardValue}>{46}</Text>
+              <Text style={styles.dashboardUnit}>Un.</Text>
+            </View>
+            <Text style={styles.dashboardTitle}>Itens que requerem atenção no Cadastro</Text>
           </View>
-          <View style={styles.dashboardItem}>
-            <Text>Info 4:</Text>
-            <Text>Valor</Text>
+
+          {/* Dashboard Item 4 */}
+          <View style={styles.dashboardItem4}>
+          <View style={styles.dashboardValueContainer}>
+              <Text style={styles.dashboardValue}>{9.3}</Text>
+              <Text style={styles.dashboardUnit}>Dias</Text>
+            </View>
+            <Text style={styles.dashboardTitle}>Tempo médio de Reposição</Text>
           </View>
+
         </View>
       </View>
+      </View>
 
-      <br></br>
-      <br></br>
-      <br></br>
+
       <ListaProdutos products={allProducts} /> {/* Passe os dados da API para o componente ListaProdutos */}
 
-      <View style={styles.bottomButtons}>
-        <Button
-          title="Cadastrar Produto"
-          onPress={() => {
-            navigation.navigate('RegistrationProduct'); // Navegar para a tela de cadastro de produto
-          }}
-        />
-        <Button
-          title="Atualizar Produto"
-          onPress={() => {
-            // Navegar para a tela de atualização de produto
-            // Implemente a navegação de acordo com sua configuração de rotas
-          }}
-        />
-      </View>
+      
     </View>
   );
 };
@@ -115,7 +156,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: '#1a1a27', // Cor de fundo alterada para rgb(26, 26, 39)
     textAlign: 'center',
     alignItems: 'center',
   },
@@ -158,21 +199,62 @@ const styles = StyleSheet.create({
   },
   dashboard: {
     marginBottom: 16,
+    marginLeft: 15,
+    marginRight: 15,
   },
   container: {
     flex: 1,
   }, 
   dashboardTitle: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: 'bold',
+    marginBottom: 8,
+    alignItems: 'center',
   },
   dashboardInfo: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  dashboardItem: {
+  dashboardItem1: {
     flex: 1,
+    backgroundColor: '#ff6961', // Cor de fundo do retângulo arredondado
+    borderRadius: 10, // Borda arredondada
+    padding: 16,
+    margin: 8,
+  },
+  dashboardItem2: {
+    flex: 1,
+    backgroundColor: '#77dd77', // Cor de fundo do retângulo arredondado
+    borderRadius: 10, // Borda arredondada
+    padding: 16,
+    margin: 8,
+  },
+  dashboardItem3: {
+    flex: 1,
+    backgroundColor: '#dfd880', // Cor de fundo do retângulo arredondado
+    borderRadius: 10, // Borda arredondada
+    padding: 16,
+    margin: 8,
+  },
+  dashboardItem4: {
+    flex: 1,
+    backgroundColor: '#77dd77', // Cor de fundo do retângulo arredondado
+    borderRadius: 10, // Borda arredondada
+    padding: 16,
+    margin: 8,
+  },
+  dashboardValueContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
+    textAlign: 'center'
+  },
+  dashboardValue: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginRight: 4,
+  },
+  dashboardUnit: {
+    fontSize: 16,
   },
   productList: {
     flex: 1,
