@@ -3,6 +3,8 @@ const mysql = require('mysql2/promise');
 const cors = require('cors'); // Importe o módulo CORS
 const app = express();
 const port = 3000;
+const moment = require('moment');
+
 
 // Configuração da conexão com o banco de dados
 const db = mysql.createPool({
@@ -50,6 +52,25 @@ app.get('/produtos', async (req, res) => {
   }
 });
 
+// Rota para buscar todos os produtos com a nova data de vencimento
+app.get('/produtos-com-vencimento', async (req, res) => {
+  try {
+    // Consulta ao banco de dados para buscar todos os produtos
+    const [rows] = await db.query('SELECT * FROM ins_insumo');
+
+    // Mapear os resultados e adicionar a nova data de vencimento usando Moment.js
+    const productsWithNewVencimento = rows.map((product) => ({
+      ...product,
+      novaDataVencimento: moment(product.ins_vencimento).add(90, 'days').format('DD/MM/YYYY'),
+    }));
+
+    res.status(200).json(productsWithNewVencimento); // Retorne os dados dos produtos com a nova data de vencimento
+  } catch (error) {
+    console.error('Erro ao buscar produtos com nova data de vencimento:', error);
+    res.status(500).json({ message: 'Erro interno do servidor' });
+  }
+});
+
 //Rota para Inserir Produtos em Cadastro
 app.post('/inserir_produto', async (req, res) => {
   const { nomeProduto, quantityProduct, batchNumber } = req.body;
@@ -82,7 +103,49 @@ app.get('/estoque-baixo', async (req, res) => {
   }
 });
 
+//Rota para listar quais produtos estão com estoque abaixo do definido
+app.get('/lista-estoque-baixo', async (req, res) => {
+  try {
+    // Consulta ao banco de dados para obter produtos com estoque baixo (quantidade < 50)
+    const [rows] = await db.query('SELECT * FROM ins_insumo WHERE ins_quantidade < 50');
+    res.status(200).json({ produtosEstoqueBaixo: rows });
+  } catch (error) {
+    console.error('Erro ao obter produtos com estoque baixo:', error);
+    res.status(500).json({ message: 'Erro interno do servidor' });
+  }
+});
 
+
+// Rota para contar itens com menos de 30 dias de vencimento
+app.get('/vencimento-proximo', async (req, res) => {
+  try {
+    // Obtém a data atual
+    const currentDate = new Date();
+
+    // Consulta ao banco de dados para contar itens com menos de 30 dias de vencimento
+    const [rows] = await db.query('SELECT COUNT(*) as quantidadeVencimentoProximo FROM ins_insumo WHERE DATEDIFF(ins_vencimento, ?) <= 30', [currentDate]);
+
+    const { quantidadeVencimentoProximo } = rows[0];
+    res.status(200).json({ quantidadeVencimentoProximo });
+  } catch (error) {
+    console.error('Erro ao contar itens com vencimento próximo:', error);
+    res.status(500).json({ message: 'Erro interno do servidor' });
+  }
+});
+
+// Rota para contar produtos com lacunas não preenchidas
+app.get('/produtos-com-lacunas', async (req, res) => {
+  try {
+    // Consulta ao banco de dados para contar produtos com lacunas não preenchidas
+    const [rows] = await db.query('SELECT COUNT(*) as quantidadeProdutosComLacunas FROM ins_insumo WHERE ins_id IS NULL OR ins_nome IS NULL OR ins_quantidade IS NULL OR ins_medida IS NULL OR ins_lote IS NULL OR ins_preco IS NULL');
+
+    const { quantidadeProdutosComLacunas } = rows[0];
+    res.status(200).json({ quantidadeProdutosComLacunas });
+  } catch (error) {
+    console.error('Erro ao contar produtos com lacunas não preenchidas:', error);
+    res.status(500).json({ message: 'Erro interno do servidor' });
+  }
+});
 
 
 app.listen(port, () => {

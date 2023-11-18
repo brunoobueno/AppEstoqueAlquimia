@@ -1,31 +1,51 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, Button, FlatList, Picker} from 'react-native';
+import { StyleSheet, View, Text, Button, FlatList, Picker } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import ListaProdutos from '../../components/ListaProdutos/ListaProdutos'; // Importe o componente ListaProdutos
+import ListaProdutos from '../../components/ListaProdutos/ListaProdutos';
 import axios from 'axios';
+import Modal from 'react-native-modal';
+import moment from 'moment';
+
 
 const OperatorDashboardScreen = () => {
-  const [userType, setUserType] = useState('administrador'); // Defina o estado inicial de userType
-  const [currentDate, setCurrentDate] = useState(''); // Defina o estado inicial de currentDate
+  const [userType, setUserType] = useState('Administrador');
+  const [currentDate, setCurrentDate] = useState('');
   const [allProducts, setAllProducts] = useState([]);
-  const [estoqueBaixo, setEstoqueBaixo] = useState(0); // Novo estado para a quantidade de produtos com estoque baixo
+  const [estoqueBaixo, setEstoqueBaixo] = useState(0);
+  const [vencimentoProximo, setVencimentoProximo] = useState(0);
+  const [itensComLacunas, setItensComLacunas] = useState(0);
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [selectedProducts, setSelectedProducts] = useState([]);
   const navigation = useNavigation();
-
-  const handleUserTypeChange = (value) => {
-    setUserType(value);
-
-    // Navegar para a página do administrador quando o tipo for 'administrador'
-    if (value === 'operador') {
-      // Implemente a navegação para a página do administrador
-      console.log('Navegar para a página do administrador');
-    }
-  };
 
   // Função para obter a data atual formatada
   const getCurrentDate = () => {
     const date = new Date();
     const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
     return formattedDate;
+  };
+
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
+
+  const openModal = async () => {
+    try {
+      const response = await axios.get('http://localhost:3000/lista-estoque-baixo');
+      setSelectedProducts(response.data.produtosEstoqueBaixo);
+      toggleModal();
+    } catch (error) {
+      console.error('Erro ao buscar produtos com estoque baixo:', error);
+    }
+  };
+
+  const handleUserTypeChange = (value) => {
+    setUserType(value);
+
+    if (value === 'administrador') {
+      // Implemente a navegação para a página do administrador
+      console.log('Navegar para a página do administrador');
+    }
   };
 
   useEffect(() => {
@@ -47,9 +67,29 @@ const OperatorDashboardScreen = () => {
       }
     };
 
+    const fetchVencimentoProximo = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/vencimento-proximo');
+        setVencimentoProximo(response.data.quantidadeVencimentoProximo);
+      } catch (error) {
+        console.error('Erro ao buscar itens com vencimento próximo:', error);
+      }
+    };
+
+    const fetchItensComLacunas = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/produtos-com-lacunas');
+        setItensComLacunas(response.data.quantidadeProdutosComLacunas);
+      } catch (error) {
+        console.error('Erro ao buscar itens com lacunas:', error);
+      }
+    };
+
+    fetchItensComLacunas();
+    fetchVencimentoProximo();
     setCurrentDate(getCurrentDate());
     fetchProducts();
-    fetchEstoqueBaixo(); // Chame a função para buscar a quantidade de produtos com estoque baixo
+    fetchEstoqueBaixo();
   }, []);
 
   return (
@@ -60,8 +100,8 @@ const OperatorDashboardScreen = () => {
           selectedValue={userType}
           onValueChange={(itemValue) => handleUserTypeChange(itemValue)}
         >
-          <Picker.Item label="Operador" value="operador" />
           <Picker.Item label="Administrador" value="administrador" />
+          <Picker.Item label="Operador" value="operador" />
         </Picker>
 
         <View style={styles.bottomButtons1}>
@@ -104,19 +144,21 @@ const OperatorDashboardScreen = () => {
 
         <View style={styles.dashboard}>
         <View style={styles.dashboardInfo}>
+          
           {/* Dashboard Item 1 */}
-          <View style={styles.dashboardItem1}>
-          <View style={styles.dashboardValueContainer}>
-              <Text style={styles.dashboardValue}>{estoqueBaixo}</Text>
-              <Text style={styles.dashboardUnit}>Un.</Text>
-            </View>
-            <Text style={styles.dashboardTitle}>Produtos com Estoque Baixo</Text>
-          </View>
+          <View style={styles.dashboardItem1} onTouchEnd={openModal}>
+  <View style={styles.dashboardValueContainer}>
+    <Text style={styles.dashboardValue} onPress={openModal}>{estoqueBaixo}</Text>
+    <Text style={styles.dashboardUnit}>Un.</Text>
+  </View>
+  <Text style={styles.dashboardTitle} onPress={openModal}>Produtos com Estoque Baixo</Text>
+</View>
+
 
           {/* Dashboard Item 2 */}
           <View style={styles.dashboardItem2}>
           <View style={styles.dashboardValueContainer}>
-              <Text style={styles.dashboardValue}>{98}</Text>
+              <Text style={styles.dashboardValue}>{vencimentoProximo}</Text>
               <Text style={styles.dashboardUnit}>Un.</Text>
             </View>
             <Text style={styles.dashboardTitle}>Validade Próxima do Vencimento</Text>
@@ -125,7 +167,7 @@ const OperatorDashboardScreen = () => {
           {/* Dashboard Item 3 */}
           <View style={styles.dashboardItem3}>
           <View style={styles.dashboardValueContainer}>
-              <Text style={styles.dashboardValue}>{46}</Text>
+              <Text style={styles.dashboardValue}>{itensComLacunas}</Text>
               <Text style={styles.dashboardUnit}>Un.</Text>
             </View>
             <Text style={styles.dashboardTitle}>Itens que requerem atenção no Cadastro</Text>
@@ -147,7 +189,37 @@ const OperatorDashboardScreen = () => {
 
       <ListaProdutos products={allProducts} /> {/* Passe os dados da API para o componente ListaProdutos */}
 
-      
+ {/* Modal */}
+ <Modal isVisible={isModalVisible} onBackdropPress={toggleModal}>
+  <View style={styles.modalContainer}>
+    <Text style={styles.modalTitle}>Produtos com Estoque Baixo</Text>
+    <FlatList
+      data={selectedProducts}
+      keyExtractor={(item) => item.ins_id.toString()}
+      renderItem={({ item, index }) => (
+        <View style={[styles.modalItem, { backgroundColor: index % 2 === 0 ? '#f2f2f2' : 'white' }]}>
+          <View style={styles.column}>
+            <Text style={styles.modalLabel}>Nome do Produto:</Text>
+            <Text style={styles.modalItemText}>{item.ins_nome.length > 25 ? `${item.ins_nome.substring(0, 22)}...` : item.ins_nome}</Text>
+          </View>
+          <View style={styles.column}>
+            <Text style={styles.modalLabel}>Quantidade:</Text>
+            <Text style={styles.modalItemText}>{item.ins_quantidade}</Text>
+          </View>
+          <View style={styles.column}>
+            <Text style={styles.modalLabel}>Unidade de Medida:</Text>
+            <Text style={styles.modalItemText}>{item.ins_medida}</Text>
+          </View>
+          <View style={styles.column}>
+            <Text style={styles.modalLabel}>Data de Vencimento:</Text>
+            <Text style={styles.modalItemText}>{moment(item.ins_vencimento).format('DD/MM/YYYY')}</Text>
+          </View>
+        </View>
+      )}
+    />
+    <Button title="Fechar" onPress={toggleModal} />
+  </View>
+</Modal>
     </View>
   );
 };
@@ -267,6 +339,36 @@ const styles = StyleSheet.create({
   bottomButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: 'white',
+    borderRadius: 8,
+    padding: 16,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  modalItem: {
+    flexDirection: 'column',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  modalItemText: {
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  modalLabel: {
+    fontWeight: 'bold',
+    marginRight: 4,
+  },
+  column: {
+    flex: 1,
+    flexDirection: 'column',
+    marginLeft: 10,
   },
 });
 

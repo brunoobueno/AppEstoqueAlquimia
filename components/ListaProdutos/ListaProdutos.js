@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, Button } from 'react-native';
+import { View, Text, FlatList, Button, StyleSheet } from 'react-native';
+import moment from 'moment';
 
 const ListaProdutos = ({ products }) => {
   const [sortedProducts, setSortedProducts] = useState([]);
@@ -47,8 +48,6 @@ const ListaProdutos = ({ products }) => {
       );
     }
 
-    
-
     return buttons;
   };
 
@@ -57,7 +56,7 @@ const ListaProdutos = ({ products }) => {
       <Text style={styles.productItemText}>{item.ins_nome}</Text>
       <Text style={styles.productItemText}>{item.ins_quantidade}</Text>
       <Text style={styles.productItemText}>{item.ins_medida}</Text>
-      <Text style={styles.productItemText}>{item.ins_vencimento}</Text>
+      <Text style={styles.productItemText}>{moment(item.novaDataVencimento).format('DD/MM/YYYY')}</Text>
     </View>
   );
 
@@ -103,7 +102,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     padding: 8,
     color: 'white',
-    flex: 1, // Para ocupar o espaço total disponível na largura
+    flex: 1,
   },
   productItem: {
     flexDirection: 'row',
@@ -114,8 +113,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   productItemText: {
-    flex: 1, // Distribuir o espaço igualmente
-    textAlign: 'left', // Centralizar o texto
+    flex: 1,
+    textAlign: 'left',
     marginLeft: 15,
   },
   paginationContainer: {
