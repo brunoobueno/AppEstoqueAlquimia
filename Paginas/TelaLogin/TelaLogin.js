@@ -32,7 +32,17 @@ const LoginScreen = () => {
 
       if (response.status === 200) {
         // Autenticação bem-sucedida
-        navigation.navigate('OperatorDashboard');
+        const userType = response.data.userType;
+
+      // Verifique o tipo de usuário e navegue para a tela apropriada
+      if (userType === 'ADM') {
+        navigation.navigate('AdministradorDashboardScreen');
+      } else if (userType === 'OPE') {
+        navigation.navigate('OperadorDashboardScreen');
+      } else {
+        // Tipo de usuário desconhecido
+        setErrorText('Tipo de usuário desconhecido');
+      }
       } else {
         // Autenticação falhou
         if (response.data.message === 'Senha incorreta') {

@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@expo-google-fonts/montserrat": "^0.2.3",
+    "@react-native-picker/picker": "^2.5.1",
     "@react-navigation/native": "^6.1.8",
     "@react-navigation/stack": "^6.3.18",
     "axios": "^1.5.1",
@@ -31,6 +32,7 @@
     "react-native-safe-area-context": "4.6.3",
     "react-native-screens": "^3.27.0",
     "react-native-splash-screen": "^3.3.0",
+    "react-native-vector-icons": "^10.0.2",
     "react-native-web": "~0.19.6",
     "react-native-webview": "^13.6.2",
     "react-native-webviewer": "^0.1.1"

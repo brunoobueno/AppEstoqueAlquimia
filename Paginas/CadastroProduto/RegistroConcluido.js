@@ -6,9 +6,13 @@ const QuantilyProduct = () => {
   const navigation = useNavigation();
 
   const handleFinished = () => {
-    // Ir para a tela de Início
-    navigation.navigate('OperatorDashboard');
+    // Reinicia a pilha de navegação para a tela 'OperatorDashboardScreen'
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'AdministradorDashboardScreen' }],
+    });
   };
+  
 
   return (
     <View style={styles.container}>
