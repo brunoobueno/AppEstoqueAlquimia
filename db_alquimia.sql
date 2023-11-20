@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 17/11/2023 às 21:29
+-- Tempo de geração: 20/11/2023 às 07:19
 -- Versão do servidor: 10.4.28-MariaDB
 -- Versão do PHP: 8.2.4
 
@@ -272,7 +272,8 @@ CREATE TABLE `ins_insumo` (
   `ins_nome` varchar(45) NOT NULL,
   `ins_quantidade` int(11) NOT NULL,
   `ins_medida` varchar(45) NOT NULL,
-  `ins_vencimento` datetime NOT NULL,
+  `ins_cadastro` datetime NOT NULL,
+  `ins_vencimento` datetime DEFAULT NULL,
   `ins_lote` varchar(45) NOT NULL,
   `ins_preco` varchar(45) DEFAULT NULL,
   `usuario_id` int(11) DEFAULT NULL
@@ -282,31 +283,14 @@ CREATE TABLE `ins_insumo` (
 -- Despejando dados para a tabela `ins_insumo`
 --
 
-INSERT INTO `ins_insumo` (`ins_id`, `ins_nome`, `ins_quantidade`, `ins_medida`, `ins_vencimento`, `ins_lote`, `ins_preco`, `usuario_id`) VALUES
-(1, 'ACIDO SULFÔNICO', 200, 'LT', '2023-12-03 09:00:00', '29102023', '10,00', 0),
-(2, 'SODA CAUSTICA', 40, 'LT', '2023-10-29 23:48:16', '29102023-1', '11,00', 0),
-(3, 'OLEO MINERAL ', 3, 'LT', '2023-10-29 23:53:45', '29102023-2', '12,00', 0),
-(4, 'ESSENCIA HIDROSSOLUVEL DE UVA', 90, 'LT', '2023-11-07 18:56:54', '29102023-4', '12,00', 0),
-(5, 'ESSENCIA HIDROSSOLUVEL DE MORANGO', 28, 'LT', '2023-11-09 20:57:00', '29102023-824', '99,00', 0),
-(6, 'ESSENCIA HIDROSSOLUVEL DE PESSÊGO', 34, 'LT', '2023-11-17 20:51:08', '29102023-822', NULL, 0),
-(7, 'ACIDO SULFÔNICO 2', 200, 'LT', '2023-12-03 09:00:00', '29102023', '10,00', 0),
-(8, 'SODA CAUSTICA 3 ', 40, 'LT', '2023-10-29 23:48:16', '29102023-1', '11,00', 0),
-(9, 'OLEO MINERAL  4', 3, 'LT', '2023-10-29 23:53:45', '29102023-2', '12,00', 0),
-(10, 'ESSENCIA HIDROSSOLUVEL DE UVA 5 ', 90, 'LT', '2023-11-07 18:56:54', '29102023-4', '12,00', 0),
-(11, 'ESSENCIA HIDROSSOLUVEL DE MORANGO 6 ', 28, 'LT', '2023-11-09 20:57:00', '29102023-824', '99,00', 0),
-(12, 'ESSENCIA HIDROSSOLUVEL DE PESSÊGO 7 ', 34, 'LT', '2023-11-17 20:51:08', '29102023-822', NULL, 0),
-(13, 'ACIDO SULFÔNICO 88', 200, 'LT', '2023-12-03 09:00:00', '29102023', '10,00', 0),
-(14, 'SODA CAUSTICA 56', 40, 'LT', '2023-10-29 23:48:16', '29102023-1', '11,00', 0),
-(15, 'OLEO MINERAL 65', 3, 'LT', '2023-10-29 23:53:45', '29102023-2', '12,00', 0),
-(16, 'ESSENCIA HIDROSSOLUVEL DE UVA 543', 90, 'LT', '2023-11-07 18:56:54', '29102023-4', '12,00', 0),
-(17, 'ESSENCIA HIDROSSOLUVEL DE MORANGO 435', 28, 'LT', '2023-11-09 20:57:00', '29102023-824', '99,00', 0),
-(18, 'ESSENCIA HIDROSSOLUVEL DE PESSÊGO 5435', 34, 'LT', '2023-11-17 20:51:08', '29102023-822', NULL, 0),
-(19, 'ACIDO SULFÔNICO 2 543', 200, 'LT', '2023-12-03 09:00:00', '29102023', '10,00', 0),
-(20, 'SODA CAUSTICA 3345', 40, 'LT', '2023-10-29 23:48:16', '29102023-1', '11,00', 0),
-(21, 'OLEO MINERAL  43421', 3, 'LT', '2023-10-29 23:53:45', '29102023-2', '12,00', 0),
-(22, 'ESSENCIA HIDROSSOLUVEL DE UVA 5235', 90, 'LT', '2023-11-07 18:56:54', '29102023-4', '12,00', 0),
-(23, 'ESSENCIA HIDROSSOLUVEL DE MORANGO 62345 ', 28, 'LT', '2023-11-09 20:57:00', '29102023-824', '99,00', 0),
-(24, 'ESSENCIA HIDROSSOLUVEL DE PESSÊGO 7235', 34, 'LT', '2023-11-17 20:51:08', '29102023-822', NULL, 0);
+INSERT INTO `ins_insumo` (`ins_id`, `ins_nome`, `ins_quantidade`, `ins_medida`, `ins_cadastro`, `ins_vencimento`, `ins_lote`, `ins_preco`, `usuario_id`) VALUES
+(3, 'OLEO MINERAL', 3, 'LT', '2023-10-29 00:00:00', '2023-12-14 00:00:00', '29102023-2', '12,00', 0),
+(4, 'ESSENCIA HIDROSSOLUVEL DE UVA', 90, 'LT', '2023-11-07 00:00:00', '2024-01-01 00:00:00', '29102023-4', '12,00', 0),
+(6, 'ESSENCIA HIDROSSOLUVEL DE PESSÊGO', 34, 'LT', '2023-11-17 00:00:00', '2024-01-01 00:00:00', '29102023-822', NULL, 0),
+(15, 'OLEO MINERAL 65', 3, 'LT', '2023-10-29 00:00:00', '2024-01-01 00:00:00', '29102023-2', '12,00', 0),
+(20, 'SODA CAUSTICA 3345', 40, 'LT', '2023-10-29 00:00:00', '2024-01-01 00:00:00', '29102023-1', '11,00', 0),
+(21, 'OLEO MINERAL  43421', 3, 'LT', '2023-10-29 00:00:00', '2024-01-01 00:00:00', '29102023-2', '12,00', 0),
+(22, 'ESSENCIA HIDROSSOLUVEL DE UVA 5235', 90, 'LT', '2023-11-07 00:00:00', '2024-01-01 00:00:00', '29102023-4', '12,00', 0);
 
 -- --------------------------------------------------------
 
@@ -557,7 +541,8 @@ CREATE TABLE `usuario` (
 --
 
 INSERT INTO `usuario` (`id_usuario`, `login_usuario`, `senha_usuario`, `tipo_usuario`) VALUES
-(0, 'teste@teste.com', 'teste123', NULL);
+(0, 'adm@teste.com', 'teste123', 'ADM'),
+(1, 'ope@teste.com', 'teste123', 'OPE');
 
 --
 -- Índices para tabelas despejadas
@@ -833,7 +818,7 @@ ALTER TABLE `for_fornecedor`
 -- AUTO_INCREMENT de tabela `ins_insumo`
 --
 ALTER TABLE `ins_insumo`
-  MODIFY `ins_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `ins_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
 
 --
 -- AUTO_INCREMENT de tabela `inventory`
