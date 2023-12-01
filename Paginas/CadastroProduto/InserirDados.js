@@ -39,7 +39,9 @@ const RegistrationProduct = () => {
   const [erroNome, setErroNome] = useState('');
 
   const [quantityProduct, setQuantityProduct] = useState('');
-  const [selectedUnit, setSelectedUnit] = useState('ML'); // Unidade selecionada
+  const [selectedUnit, setSelectedUnit] = useState('ML');
+
+  const [quantityMinimo, setQuantityMinimo] = useState('');
 
   const [batchNumber, setBatchNumber] = useState('');
   const [showBatchError, setShowBatchError] = useState(false);
@@ -73,8 +75,8 @@ const RegistrationProduct = () => {
       const dadosProduto = {
         nomeProduto,
         quantityProduct,
+        quantityMinimo,
         batchNumber,
-        selectedUnit,
         ins_medida: selectedUnit,
         ins_cadastro,
         ins_vencimento: dataVencimento,
@@ -121,6 +123,19 @@ const RegistrationProduct = () => {
         />
         <Text style={styles.errorMessage}>{erroCodigo}</Text>
 
+        <Text style={styles.label}>NOME</Text>
+        <TextInput
+          style={[styles.input, erroNome && styles.inputError]}
+          placeholder="Digite o nome do produto"
+          onChangeText={(text) => {
+            setNomeProduto(text);
+            setErroNome('');
+          }}
+          value={nomeProduto}
+        />
+        <Text style={styles.errorMessage}>{erroNome}</Text>
+
+
         <Text style={styles.label}>QUANTIDADE:</Text>
         <View style={styles.quantityContainer}>
           <TextInput
@@ -141,17 +156,16 @@ const RegistrationProduct = () => {
           </Picker>
         </View>
 
-        <Text style={styles.label}>NOME</Text>
-        <TextInput
-          style={[styles.input, erroNome && styles.inputError]}
-          placeholder="Digite o nome do produto"
-          onChangeText={(text) => {
-            setNomeProduto(text);
-            setErroNome('');
-          }}
-          value={nomeProduto}
-        />
-        <Text style={styles.errorMessage}>{erroNome}</Text>
+        <Text style={styles.label}>QUANTIDADE MÍNIMA:</Text>
+        <View style={styles.quantityContainer}>
+          <TextInput
+            style={[styles.input, styles.quantityInput]}
+            placeholder="Digite a quantidade mínima"
+            onChangeText={(text) => setQuantityMinimo(text.replace(/[^0-9]/g, ''))}
+            value={quantityMinimo}
+            keyboardType="numeric"
+          />
+        </View>
 
         <Text style={styles.label}>LOTE:</Text>
         <TextInput

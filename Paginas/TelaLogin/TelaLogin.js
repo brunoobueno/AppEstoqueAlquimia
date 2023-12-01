@@ -14,6 +14,7 @@ const LoginScreen = () => {
   const [isEmailValid, setIsEmailValid] = React.useState(true);
   const [errorText, setErrorText] = React.useState('');
 
+
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };

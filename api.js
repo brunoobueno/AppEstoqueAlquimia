@@ -25,7 +25,7 @@ app.post('/login', async (req, res) => {
 
   try {
     // Consulta ao banco de dados para verificar as credenciais
-    const [rows] = await db.query('SELECT * FROM usuario WHERE login_usuario = ? AND senha_usuario = ?', [email, password]);
+    const [rows] = await db.query('SELECT * FROM usuario WHERE email_usuario = ? AND senha_usuario = ?', [email, password]);
 
     if (rows.length === 1) {
       // Credenciais válidas
@@ -77,13 +77,13 @@ app.get('/lista-vencimento-proximo', async (req, res) => {
 
 //Rota para Cadastrar Produto
 app.post('/inserir-produto', async (req, res) => {
-  const { nomeProduto, quantityProduct, batchNumber, ins_medida, ins_cadastro, ins_vencimento } = req.body;
+  const { nomeProduto, quantityProduct, quantityMinimo, batchNumber, ins_medida, ins_cadastro, ins_vencimento } = req.body;
 
   console.log('Recebendo requisição para cadastrar produto:', req.body);
 
   try {
     // Execute a lógica para inserir o produto no banco de dados
-    const [result] = await db.query('INSERT INTO ins_insumo (ins_nome, ins_quantidade, ins_lote, ins_medida, ins_cadastro, ins_vencimento) VALUES (?, ?, ?, ?, ?, ?)', [nomeProduto, quantityProduct, batchNumber, ins_medida, ins_cadastro, ins_vencimento]);
+    const [result] = await db.query('INSERT INTO ins_insumo (ins_nome, ins_quantidade, ins_minimo, ins_lote, ins_medida, ins_cadastro, ins_vencimento) VALUES (?, ?, ?, ?, ?, ?,? )', [nomeProduto, quantityProduct, quantityMinimo, batchNumber, ins_medida, ins_cadastro, ins_vencimento]);
 
     if (result.affectedRows === 1) {
       // Produto inserido com sucesso
@@ -98,11 +98,35 @@ app.post('/inserir-produto', async (req, res) => {
   }
 }); 
 
+// Rota para cadastrar um novo usuário
+app.post('/cadastrar-usuario', async (req, res) => {
+  const { nome, email, password, userType } = req.body;
+
+  console.log('Recebendo requisição para cadastrar usuário:', req.body);
+
+  try {
+    // Execute a lógica para inserir o usuário no banco de dados
+    const [result] = await db.query('INSERT INTO usuario (nome_usuario, email_usuario, senha_usuario, tipo_usuario) VALUES (?, ?, ?, ?)', [nome, email, password, userType]);
+
+    if (result.affectedRows === 1) {
+      // Usuário cadastrado com sucesso
+      res.status(200).json({ message: 'Usuário cadastrado com sucesso.' });
+    } else {
+      // Se não foi possível cadastrar o usuário
+      res.status(500).json({ message: 'Erro ao cadastrar usuário.' });
+    }
+  } catch (error) {
+    // Se ocorrer um erro durante a execução da operação no banco de dados
+    res.status(500).json({ message: 'Erro interno do servidor.', error: error.message });
+  }  
+});
+
+
 // Rota para contar a quantidade de produtos com estoque baixo
 app.get('/estoque-baixo', async (req, res) => {
   try {
     // Consulta ao banco de dados para contar produtos com estoque baixo (quantidade < 50)
-    const [rows] = await db.query('SELECT COUNT(*) as quantidadeEstoqueBaixo FROM ins_insumo WHERE ins_quantidade < 50');
+    const [rows] = await db.query('SELECT COUNT(*) as quantidadeEstoqueBaixo FROM ins_insumo WHERE ins_quantidade < ins_minimo');
     const { quantidadeEstoqueBaixo } = rows[0];
     res.status(200).json({ quantidadeEstoqueBaixo });
   } catch (error) {
@@ -115,13 +139,15 @@ app.get('/estoque-baixo', async (req, res) => {
 app.get('/lista-estoque-baixo', async (req, res) => {
   try {
     // Consulta ao banco de dados para obter produtos com estoque baixo (quantidade < 50)
-    const [rows] = await db.query('SELECT * FROM ins_insumo WHERE ins_quantidade < 50');
+    const [rows] = await db.query('SELECT * FROM ins_insumo WHERE ins_quantidade < ins_minimo');
     res.status(200).json({ produtosEstoqueBaixo: rows });
   } catch (error) {
     console.error('Erro ao obter produtos com estoque baixo:', error);
     res.status(500).json({ message: 'Erro interno do servidor' });
   }
 });
+
+
 
 
 // Rota para contar itens com menos de 30 dias de vencimento

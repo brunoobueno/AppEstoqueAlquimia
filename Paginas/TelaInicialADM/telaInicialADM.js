@@ -7,6 +7,8 @@ import Modal from 'react-native-modal';
 import moment from 'moment';
 import { TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { useSelector } from 'react-redux';
+
 
 const AdministradorDashboardScreen = () => {
   const [userType, setUserType] = useState('Administrador');
@@ -24,6 +26,7 @@ const AdministradorDashboardScreen = () => {
   const [pageState, setPageState] = useState(/* Seu estado inicial aqui */);
   const [pageKey, setPageKey] = useState(Date.now()); // Valor inicial pode ser qualquer valor único, como Date.now()
   const navigation = useNavigation();
+  
 
   const getCurrentDate = () => {
     const date = new Date();
@@ -159,6 +162,26 @@ const AdministradorDashboardScreen = () => {
         />
         </View>
 
+        <View style={styles.bottomButtons1}>
+        <Button
+          title="Cadastrar Usuário"
+          onPress={() => {
+            navigation.navigate('CadastroPessoas'); // Navegar para a tela de cadastro de produto
+          }}
+          color="#1a1a27" // Cor do botão alterada para rgb(26, 26, 39)
+        />
+        </View>
+
+        <View style={styles.bottomButtons1}>
+        <Button
+          title="Iniciar Inventário"
+          onPress={() => {
+            navigation.navigate('TelaInventario'); // Navegar para a tela de cadastro de produto
+          }}
+          color="#1a1a27" // Cor do botão alterada para rgb(26, 26, 39)
+        />
+        </View>
+
         <View style={styles.dateContainer}>
           <View style={styles.dateLabelContainer}>
             <Text style={styles.dateLabel}>Data Atual</Text>
@@ -240,31 +263,25 @@ const AdministradorDashboardScreen = () => {
         <View style={[styles.modalItem, { backgroundColor: index % 2 === 0 ? '#f2f2f2' : 'white' }]}>
           <View style={styles.row}>
             <View style={styles.centeredColumn}>
-              <Text style={styles.modalLabel}>Nome do Produto:</Text>
+              <Text style={styles.modalLabel}>Nome do Produto</Text>
               <Text style={styles.modalItemText}>{item.ins_nome}</Text>
             </View>
             <View style={styles.centeredColumn}>
-              <Text style={styles.modalLabel}>Quantidade:</Text>
+              <Text style={styles.modalLabel}>Quantidade Atual</Text>
               <Text style={styles.modalItemText}>{item.ins_quantidade}</Text>
             </View>
             <View style={styles.centeredColumn}>
-              <Text style={styles.modalLabel}>Unidade de Medida:</Text>
+              <Text style={styles.modalLabel}>Quantidade Mínima</Text>
+              <Text style={styles.modalItemText}>{item.ins_minimo}</Text>
+            </View>
+            <View style={styles.centeredColumn}>
+              <Text style={styles.modalLabel}>Unidade de Medida</Text>
               <Text style={styles.modalItemText}>{item.ins_medida}</Text>
             </View>
             <View style={styles.centeredColumn}>
-              <Text style={styles.modalLabel}>Data de Vencimento:</Text>
+              <Text style={styles.modalLabel}>Data de Vencimento</Text>
               <Text style={styles.modalItemText}>{moment(item.ins_vencimento).format('DD/MM/YYYY')}</Text>
             </View>
-            <View style={styles.icone1}>
-            <TouchableOpacity onPress={() => handleEdit(selectedProduct)}>
-      <Icon name="pencil" size={20} color="#1a1a27" />
-    </TouchableOpacity>
-    </View>
-    <View style={styles.icone2}>
-    <TouchableOpacity onPress={() => handleDelete(selectedProduct, handleDeleteCallback)}>
-      <Icon name="trash" size={20} color="red" />
-    </TouchableOpacity>
-    </View>
           </View>
         </View>
       )}
@@ -303,16 +320,6 @@ const AdministradorDashboardScreen = () => {
               <Text style={styles.modalLabel}>Data de Vencimento:</Text>
               <Text style={styles.modalItemText}>{moment(item.ins_vencimento).format('DD/MM/YYYY')}</Text>
             </View>
-            <View style={styles.icone1}>
-            <TouchableOpacity onPress={() => handleEdit(selectedProduct)}>
-      <Icon name="pencil" size={20} color="#1a1a27" />
-    </TouchableOpacity>
-    </View>
-    <View style={styles.icone2}>
-    <TouchableOpacity onPress={() => handleDelete(selectedProduct, handleDeleteCallback)}>
-      <Icon name="trash" size={20} color="red" />
-    </TouchableOpacity>
-    </View>
           </View>
         </View>
       )}
@@ -353,16 +360,6 @@ const AdministradorDashboardScreen = () => {
               <Text style={styles.modalLabel}>Data de Vencimento:</Text>
               <Text style={styles.modalItemText}>{moment(item.ins_vencimento).format('DD/MM/YYYY')}</Text>
             </View>
-            <View style={styles.icone1}>
-            <TouchableOpacity onPress={() => handleEdit(selectedProduct)}>
-      <Icon name="pencil" size={20} color="#1a1a27" />
-    </TouchableOpacity>
-    </View>
-    <View style={styles.icone2}>
-    <TouchableOpacity onPress={() => handleDelete(selectedProduct, handleDeleteCallback)}>
-      <Icon name="trash" size={20} color="red" />
-    </TouchableOpacity>
-    </View>
           </View>
         </View>
       )}

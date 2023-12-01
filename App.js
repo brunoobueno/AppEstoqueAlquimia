@@ -13,11 +13,12 @@ export default function App() {
   }
 
   return (
-    <View style={{ flex: 1 }}>
-      <Navigation />
-    </View>
+      <View style={{ flex: 1 }}>
+        <Navigation />
+      </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

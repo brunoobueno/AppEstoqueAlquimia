@@ -44,27 +44,23 @@ const OperadorDashboardScreen = () => {
         setCurrentDate(getCurrentDate());
       }, []);
 
-  return (
-    <View style={styles.container}>
-<View style={styles.header}>
-
-        <View style={styles.dateContainer}>
-          <View style={styles.dateLabelContainer}>
-            <Text style={styles.dateLabel}>Data Atual</Text>
+      return (
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <View style={styles.dateContainer}>
+              <View style={styles.dateLabelContainer}>
+                <Text style={styles.dateLabel}>Data Atual</Text>
+              </View>
+              <View style={styles.dateValueContainer}>
+                <Text style={styles.dateValue}>{currentDate}</Text>
+              </View>
+            </View>
           </View>
-          <View style={styles.dateValueContainer}>
-            <Text style={styles.dateValue}>{currentDate}</Text>
-          </View>
-          
+    
+          <ListaProdutos key={pageKey} products={allProducts} />
         </View>
-      </View>
-
-      <ListaProdutos key={pageKey} products={allProducts} />
-
-      
-    </View>
-  );
-};
+      );
+    };
 
 const styles = StyleSheet.create({
   container: {
