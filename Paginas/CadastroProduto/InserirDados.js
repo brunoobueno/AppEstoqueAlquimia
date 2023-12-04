@@ -1,25 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TextInput, Pressable, BackHandler, ScrollView, Picker } from 'react-native';
+import {StyleSheet,Text,View,TextInput,Pressable,BackHandler,ScrollView,Picker,} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
-import moment from 'moment'; 
+import moment from 'moment';
 import axios from 'axios';
 
-
-
 // Lista de unidades
-const unidades = ['ML', 'LT', 'UN', 'g', 'KG'];
+const unidades = ['Selecione', 'ML', 'LT', 'UN', 'g', 'KG'];
 
 // Função para cadastrar produto
 const cadastrarProduto = async (dadosProduto) => {
   try {
-    const response = await axios.post('http://localhost:3000/inserir-produto', dadosProduto);
+    const response = await axios.post(
+      'http://localhost:3000/inserir-produto',
+      dadosProduto
+    );
 
     if (response.status === 200) {
       console.log('Produto cadastrado com sucesso!');
       return true;
     } else {
-      console.error('Erro ao cadastrar o produto na API:', response.data.message);
+      console.error(
+        'Erro ao cadastrar o produto na API:',
+        response.data.message
+      );
       return false;
     }
   } catch (error) {
@@ -45,25 +49,25 @@ const RegistrationProduct = () => {
   const [erroNome, setErroNome] = useState('');
 
   const [quantityProduct, setQuantityProduct] = useState('');
-  const [selectedUnit, setSelectedUnit] = useState('ML');
+  const [isQuantityFocused, setIsQuantityFocused] = useState(false);
+  const [erroQuantityProduct, setErroQuantityProduct] = useState('');
+
+  const [selectedUnit, setSelectedUnit] = useState('Selecione');
+  const [isPickerFocused, setIsPickerFocused] = useState(false);
+  const [erroPicker, setErroPicker] = useState('');
 
   const [quantityMinimo, setQuantityMinimo] = useState('');
+  const [isQuantityMinimoFocused, setIsQuantityMinimoFocused] = useState(false);
+  const [erroQuantityMinimo, setErroQuantityMinimo] = useState('');
 
   const [batchNumber, setBatchNumber] = useState('');
   const [showBatchError, setShowBatchError] = useState(false);
 
-  
-
-
-  const onPressRandomCode = () => {
-    const randomCode = generateRandomCode();
-    setCodigoProduto(randomCode);
-    setErroCodigo('');
-    setCodigoGerado(true); // Define codigoGerado como true
-  };
-
   useEffect(() => {
-    const backHandler = BackHandler.addEventListener('hardwareBackPress', handleGoBack);
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      handleGoBack
+    );
 
     return () => backHandler.remove();
   }, []);
@@ -73,21 +77,36 @@ const RegistrationProduct = () => {
     return true;
   };
 
+  const onPressRandomCode = () => {
+    const randomCode = generateRandomCode();
+    setCodigoProduto(randomCode);
+    setErroCodigo('');
+    setCodigoGerado(true);
+  };
+
   const onPressFinalizar = async () => {
-    const codigoValido = codigoProduto.trim() !== '';
-    const nomeValido = nomeProduto.trim() !== '';
-    const loteValido = batchNumber !== '';
+    setErroCodigo(codigoProduto.trim() !== '' ? '' : 'Digite um código válido!!!');
+    setErroNome(nomeProduto.trim() !== '' ? '' : 'Digite um nome válido!!!');
+    setShowBatchError(batchNumber !== '' ? false : true);
+    setErroQuantityMinimo(quantityMinimo.trim() !== '' ? '' : 'Digite uma quantidade mínima válida!!!');
+    setErroQuantityProduct(quantityProduct.trim() !== '' ? '' : 'Digite uma quantidade válida!!!');
+    setErroPicker(selectedUnit !== 'Selecione' ? '' : 'Selecione uma unidade válida!!!');
 
-    setErroCodigo(codigoValido ? '' : 'Digite um código válido!!!');
-    setErroNome(nomeValido ? '' : 'Digite um nome válido!!!');
-    setShowBatchError(loteValido ? false : true);
-    
-
-    if (codigoValido && nomeValido && loteValido) {
-      // Calcula a data de vencimento (data atual + 90 dias)
+    if (
+      codigoProduto.trim() !== '' &&
+      nomeProduto.trim() !== '' &&
+      batchNumber !== '' &&
+      quantityMinimo.trim() !== '' &&
+      quantityProduct.trim() !== '' &&
+      erroQuantityProduct === '' &&
+      erroPicker === '' &&
+      erroQuantityMinimo === ''
+    ) {
       const ins_cadastro = moment().format('YYYY-MM-DD HH:mm:ss');
-      const dataVencimento = moment().add(90, 'days').format('YYYY-MM-DD HH:mm:ss');
-  
+      const dataVencimento = moment()
+        .add(90, 'days')
+        .format('YYYY-MM-DD HH:mm:ss');
+
       const dadosProduto = {
         codigoProduto,
         nomeProduto,
@@ -101,7 +120,7 @@ const RegistrationProduct = () => {
 
       try {
         const cadastradoComSucesso = await cadastrarProduto(dadosProduto);
-  
+
         if (cadastradoComSucesso) {
           navigation.navigate('RegisteredProduct');
         } else {
@@ -126,7 +145,7 @@ const RegistrationProduct = () => {
       <Text style={styles.title}>CADASTRO DE PRODUTO</Text>
 
       <View style={styles.column}>
-      <Text style={styles.label}>CÓDIGO DO PRODUTO</Text>
+        <Text style={styles.label}>CÓDIGO DO PRODUTO</Text>
         <View style={styles.codeInputContainer}>
           <TextInput
             style={[
@@ -146,7 +165,7 @@ const RegistrationProduct = () => {
             <Icon name="sync" size={16} color="#fff" />
           </Pressable>
         </View>
-        <Text style={styles.errorMessage}>{erroNome}</Text>
+        <Text style={styles.errorMessage}>{erroCodigo}</Text>
 
         <Text style={styles.label}>NOME</Text>
         <TextInput
@@ -161,35 +180,75 @@ const RegistrationProduct = () => {
         <Text style={styles.errorMessage}>{erroNome}</Text>
 
         <Text style={styles.label}>QUANTIDADE:</Text>
-        <View style={styles.quantityContainer}>
-          <TextInput
-            style={[styles.input, styles.quantityInput]}
-            placeholder="Digite a quantidade"
-            onChangeText={(text) => setQuantityProduct(text.replace(/[^0-9]/g, ''))}
-            value={quantityProduct}
-            keyboardType="numeric"
-          />
-          <Picker
-            selectedValue={selectedUnit}
-            style={[styles.input, styles.picker, styles.quantityInput]}
-            onValueChange={(itemValue, itemIndex) => setSelectedUnit(itemValue)}
-          >
-            {unidades.map((unidade, index) => (
-              <Picker.Item key={index} label={unidade} value={unidade} />
-            ))}
-          </Picker>
-        </View>
+<View style={styles.quantityContainer}>
+  <TextInput
+    style={[
+      styles.input,
+      styles.quantityInput,
+      erroQuantityProduct && styles.inputError,
+    ]}
+    placeholder="Digite a quantidade"
+    onChangeText={(text) => {
+      setQuantityProduct(text.replace(/[^0-9]/g, ''));
+      setErroQuantityProduct(text.trim() !== '' ? '' : 'Digite uma quantidade válida!!!');
+    }}
+    value={quantityProduct}
+    keyboardType="numeric"
+    onFocus={() => setIsQuantityFocused(true)}
+    onBlur={() => setIsQuantityFocused(false)}
+  />
+  <Picker
+    selectedValue={selectedUnit}
+    style={[
+      styles.input,
+      styles.picker,
+      styles.quantityInput,
+      (erroPicker && !isPickerFocused) && styles.inputError,
+    ]}
+    onValueChange={(itemValue, itemIndex) => {
+      setSelectedUnit(itemValue);
+      setErroPicker(itemValue !== 'Selecione' ? '' : 'Selecione uma unidade válida!!!');
+    }}
+    onFocus={() => setIsPickerFocused(true)}
+    onBlur={() => setIsPickerFocused(false)}
+  >
+    {unidades.map((unidade, index) => (
+      <Picker.Item key={index} label={unidade} value={unidade} />
+    ))}
+  </Picker>
+</View>
+{erroQuantityProduct !== '' && (
+  <Text style={styles.errorMessage}>{erroQuantityProduct}</Text>
+)}
+{(erroPicker !== '' && !isPickerFocused) && (
+  <Text style={styles.errorMessage}>{erroPicker}</Text>
+)}
 
-        <Text style={styles.label}>QUANTIDADE MÍNIMA:</Text>
-        <View style={styles.quantityContainer}>
-          <TextInput
-            style={[styles.input, styles.quantityInput]}
-            placeholder="Digite a quantidade mínima"
-            onChangeText={(text) => setQuantityMinimo(text.replace(/[^0-9]/g, ''))}
-            value={quantityMinimo}
-            keyboardType="numeric"
-          />
-        </View>
+
+<Text style={styles.label}>QUANTIDADE MÍNIMA:</Text>
+<View style={styles.quantityContainer}>
+  <TextInput
+    style={[
+      styles.input,
+      styles.quantityInput,
+      erroQuantityMinimo && styles.inputError,
+    ]}
+    placeholder="Digite a quantidade mínima"
+    onChangeText={(text) => {
+      setQuantityMinimo(text.replace(/[^0-9]/g, ''));
+      setErroQuantityMinimo(text.trim() !== '' ? '' : 'Digite uma quantidade mínima válida!!!');
+    }}
+    value={quantityMinimo}
+    keyboardType="numeric"
+    onFocus={() => setIsQuantityMinimoFocused(true)}
+    onBlur={() => setIsQuantityMinimoFocused(false)}
+  />
+</View>
+{(erroQuantityMinimo !== '' && !isQuantityMinimoFocused) && (
+  <Text style={styles.errorMessage}>{erroQuantityMinimo}</Text>
+)}
+
+
 
         <Text style={styles.label}>LOTE:</Text>
         <TextInput
@@ -207,10 +266,7 @@ const RegistrationProduct = () => {
       </View>
 
       <View style={styles.buttonContainer}>
-        <Pressable
-          style={styles.button}
-          onPress={onPressFinalizar}
-        >
+        <Pressable style={styles.button} onPress={onPressFinalizar}>
           <Text style={styles.buttonText}>CADASTRAR</Text>
         </Pressable>
       </View>
@@ -230,11 +286,9 @@ const styles = StyleSheet.create({
     fontSize: 25,
     fontWeight: 'bold',
     color: 'black',
-    padding: 10,
     marginBottom: 20,
   },
   column: {
-    justifyContent: 'center',
     alignItems: 'center',
     marginVertical: 10,
   },
@@ -276,12 +330,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
-  backButton: {
-    position: 'absolute',
-    top: 16,
-    left: 16,
-    zIndex: 1,
-  },
   quantityContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -292,16 +340,16 @@ const styles = StyleSheet.create({
   },
   picker: {
     height: 40,
-    width: 20, // Largura desejada
+    width: 20,
     borderRadius: 12,
     borderWidth: 1,
-    marginLeft: 8, // Espaçamento entre o TextInput e o Picker
-    backgroundColor: 'white',  // Cor de fundo branca
+    marginLeft: 8,
+    backgroundColor: 'white',
   },
   backIcon: {
     position: 'absolute',
     top: 16,
-    left: 80,
+    left: 16,
     zIndex: 1,
   },
   codeInputContainer: {

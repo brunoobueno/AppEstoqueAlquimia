@@ -1,16 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal } from 'react-native';
 import RNPickerSelect from 'react-native-picker-select';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 
 
-const App = () => {
+
+
+const App = ({ route }) => {
   const [quantityProduct, setQuantityProduct] = useState('');
   const [selectedUnit, setSelectedUnit] = useState('kg');
   const [modalVisible, setModalVisible] = useState(false);
   const [error, setError] = useState('');
   const navigation = useNavigation();
+
+  useEffect(() => {
+    if (route.params?.scannedData) {
+      // Lógica para processar o código QR lido
+      const productCode = route.params.scannedData;
+      console.log('Código do produto lido:', productCode);
+    }
+  }, [route.params]);
 
   const handleGoBack = () => {
     navigation.goBack();

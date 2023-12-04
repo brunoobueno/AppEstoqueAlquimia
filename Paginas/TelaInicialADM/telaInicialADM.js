@@ -39,14 +39,15 @@ const AdministradorDashboardScreen = () => {
   };
 
   const getColorForDashboardItem = (value) => {
-    if (value < 5) {
+    if (value <= 15) {
       return '#77dd77'; // Verde
-    } else if (value >= 5 && value <= 11) {
+    } else if (value <= 30) {
       return '#dfd880'; // Amarelo
     } else {
       return '#ff6961'; // Vermelho
     }
   };
+  
 
 
   const resetPage = () => {
@@ -198,7 +199,15 @@ const AdministradorDashboardScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-
+        <Text style={styles.welcomeText}>ALQUIMIA INDUSTRIA {}</Text>
+        <View style={styles.dateContainer}>
+          <View style={styles.dateLabelContainer}>
+            <Text style={styles.dateLabel}>Data Atual:</Text>
+          </View>
+          <View style={styles.dateValueContainer}>
+            <Text style={styles.dateValue}>{currentDate}</Text>
+          </View>
+        </View>
         <View style={styles.bottomButtons1}>
           <Button
             title="Cadastrar Produto"
@@ -218,16 +227,7 @@ const AdministradorDashboardScreen = () => {
             color="#1a1a27" // Cor do botão alterada para rgb(26, 26, 39)
           />
         </View>
-
-        <View style={styles.dateContainer}>
-          <View style={styles.dateLabelContainer}>
-            <Text style={styles.dateLabel}>Data Atual</Text>
-          </View>
-          <View style={styles.dateValueContainer}>
-            <Text style={styles.dateValue}>{currentDate}</Text>
-          </View>
-        </View>
-        <Button title="Sair" onPress={logout} />
+        <Button title="Sair" onPress={logout} color="#1a1a27" />
       </View>
 
       <View style={styles.dashboard}>
@@ -474,6 +474,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     alignItems: 'center',
   },
+  welcomeText: {
+    fontSize: 18,
+    color: 'white',
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -580,7 +584,7 @@ const styles = StyleSheet.create({
   },
   bottomButtons: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   modalContainer: {
     flex: 1,

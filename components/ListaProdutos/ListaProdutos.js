@@ -11,7 +11,7 @@ const ListaProdutos = ({ products }) => {
   const [sortedProducts, setSortedProducts] = useState([]);
   const [sortConfig, setSortConfig] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
+  const [itemsPerPage] = useState(15);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -159,13 +159,15 @@ const ListaProdutos = ({ products }) => {
 
   return (
     <View style={styles.container}>
+            <Text style={styles.textoTitulo}>Lista de Produtos Cadastrados</Text>
       <TextInput
         style={styles.searchBar}
         placeholder="Insira o que deseja Pesquisar..."
         value={searchTerm}
         onChangeText={handleSearch}
       />
-      <Text style={styles.textoSelecione}>Selecione um item para modificar...</Text>
+                  <Text style={styles.textoTitulo}></Text>
+
       <FlatList
   data={sortedProducts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)}
   keyExtractor={(item) => item.ins_id.toString()}
@@ -220,7 +222,18 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     textAlign: 'center',
-    margin: 10,
+    marginRight: 80,
+    marginLeft: 80,
+    marginBottom: 30,
+    marginTop: 10,
+  },
+  textoTitulo: {
+    textAlign: 'center', 
+    color: '#1A1A27',
+     marginTop: 20, 
+     fontWeight: 'bold', 
+     marginBottom: 20,
+     fontSize: 30,
   },
   searchBar: {
     height: 40,
@@ -276,13 +289,6 @@ const styles = StyleSheet.create({
   icone2: {
     marginRight: 10,
   },
-  textoSelecione: {
-    textAlign: 'center', 
-    color: '#1A1A27',
-     marginTop: 20, 
-     fontWeight: 'bold', 
-     marginBottom: 10,
-  }
 });
 
 export default ListaProdutos;

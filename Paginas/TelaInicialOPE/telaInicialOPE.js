@@ -1,127 +1,152 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { Button } from 'react-native-elements';
 import ListaProdutos from '../../components/ListaProdutos/ListaProdutos';
-import Icon from 'react-native-vector-icons/FontAwesome5';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
 
+const OperadorDashboardScreen = ({ route }) => {
+  const [userType, setUserType] = useState('Operador');
+  const [currentDate, setCurrentDate] = useState('');
+  const [allProducts, setAllProducts] = useState([]);
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [pageKey, setPageKey] = useState(Date.now());
+  const navigation = useNavigation();
 
-const OperadorDashboardScreen = () => {
-    const [userType, setUserType] = useState('Operador');
-    const [currentDate, setCurrentDate] = useState('');
-    const [allProducts, setAllProducts] = useState([]);
-    const [isModalVisible, setModalVisible] = useState(false);
-    const [pageKey, setPageKey] = useState(Date.now());
-    const navigation = useNavigation();
+  const storeData = async (key, value) => {
+    try {
+      const jsonValue = JSON.stringify(value);
+      await AsyncStorage.setItem(key, jsonValue);
+    } catch (e) {
+      // saving error
+    }
+  };
 
-    const storeData = async (key, value) => {
+  const handleAdicionarQuantidade = () => {
+    navigation.navigate('ScannerScreen');
+  };
+
+  const handleQRCodeRead = (data) => {
+    console.log('Código QR lido:', data);
+    navigation.navigate('Confirmar', { scannedData: data });
+  };
+
+  const getData = async (key) => {
+    try {
+      const jsonValue = await AsyncStorage.getItem(key);
+      return jsonValue != null ? JSON.parse(jsonValue) : null;
+    } catch (e) {
+      // error reading value
+    }
+  };
+
+  const getCurrentDate = () => {
+    const date = new Date();
+    const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+    return formattedDate;
+  };
+
+  const toggleModal = () => setModalVisible(!isModalVisible);
+
+  const handleUserTypeChange = (value) => {
+    setUserType(value);
+    if (value === 'administrador') {
+      console.log('Navegar para a página do administrador');
+    }
+  };
+
+  const handleRemoverQuantidade = () => {
+    navigation.navigate('AtualizarREM');
+  };
+
+  const IniciaInventario = () => {
+    navigation.navigate('TelaInventario');
+  };
+
+  useEffect(() => {
+    const fetchProducts = async () => {
       try {
-        const jsonValue = JSON.stringify(value);
-        await AsyncStorage.setItem(key, jsonValue);
-      } catch (e) {
-        // saving error
+        const response = await axios.get('http://192.168.1.2:3000/produtos');
+        setAllProducts(response.data);
+      } catch (error) {
+        console.error('Erro ao buscar produtos:', error);
       }
     };
 
-    const getData = async (key) => {
-      try {
-        const jsonValue = await AsyncStorage.getItem(key);
-        return jsonValue != null ? JSON.parse(jsonValue) : null;
-      } catch (e) {
-        // error reading value
-      }
-    };
+    fetchProducts();
+    setCurrentDate(getCurrentDate());
+  }, []);
 
-    const getCurrentDate = () => {
-        const date = new Date();
-        const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
-        return formattedDate;
-      };
-    
-      const toggleModal = () => setModalVisible(!isModalVisible);
-    
-      const handleUserTypeChange = (value) => {
-        setUserType(value);
-        if (value === 'administrador') {
-          console.log('Navegar para a página do administrador');
-        }
-      };
+  const logout = async () => {
+    await storeData('userLogin', null);
+    navigation.navigate('LoginScreen');
+  };
 
-      const handleAdicionarQuantidade = () => {
-        // Navegar para a página 'AtualizarADC'
-        navigation.navigate('AtualizarADC');
-      };
-    
-      const handleRemoverQuantidade = () => {
-        // Navegar para a página 'AtualizarADC'
-        navigation.navigate('AtualizarREM');
-      };
-    
-      useEffect(() => {
-        const fetchProducts = async () => {
-          try {
-            const response = await axios.get('http://192.168.1.2:3000/produtos');
-            setAllProducts(response.data);
-          } catch (error) {
-            console.error('Erro ao buscar produtos:', error);
-          }
-        };
-    
-        fetchProducts();
-        setCurrentDate(getCurrentDate());
-      }, []);
+  useEffect(() => {
+    // Use o valor do código QR lido do parâmetro da rota
+    const scannedData = route.params?.scannedData;
 
-      const logout = async () => {
+    if (scannedData) {
+      // Faça o que for necessário com os dados do código QR
+      handleQRCodeRead(scannedData);
+    }
+  }, [route.params]);
 
-        await storeData('userLogin', null);
-        navigation.navigate("LoginScreen");
-      }
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity onPress={handleAdicionarQuantidade}>
+          <Text style={styles.headerButton}>Adicionar Quantidade</Text>
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
 
-      return (
-        <View style={styles.container}>
-          <View style={styles.header}>
-            <View style={styles.dateContainer}>
-              <View style={styles.dateLabelContainer}>
-                <Text style={styles.dateLabel}>Data Atual</Text>
-              </View>
-              <View style={styles.dateValueContainer}>
-                <Text style={styles.dateValue}>{currentDate}</Text>
-              </View>
-            </View>
-            <Button title="Sair" onPress={logout} />
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.welcomeText}>ALQUIMIA INDUSTRIA { }</Text>
+        <View style={styles.dateContainer}>
+          <View style={styles.dateLabelContainer}>
+            <Text style={styles.dateLabel}>Data Atual:</Text>
           </View>
-
-          <View style={styles.bottomButtons1}>
-        <Button
-          title="Iniciar Inventário"
-          onPress={() => {
-            navigation.navigate('TelaInventario'); // Navegar para a tela de cadastro de produto
-          }}
-          color="#1a1a27" // Cor do botão alterada para rgb(26, 26, 39)
-        />
+          <View style={styles.dateValueContainer}>
+            <Text style={styles.dateValue}>{currentDate}</Text>
+          </View>
         </View>
+        <View style={styles.buttonContainer}>
+          <Button title="Sair" onPress={logout} color="#1a1a27" />
+        </View>
+      </View>
 
-        <View style={styles.bottomButtons}>
-        <TouchableOpacity onPress={handleAdicionarQuantidade} style={styles.botaoADC}>
+      <View style={styles.bottomButtonsContainer}>
+        <TouchableOpacity onPress={handleAdicionarQuantidade} style={styles.botaoREM}>
           <Text style={styles.botaoTexto}>Adicionar</Text>
           <View style={{ alignItems: 'center' }}>
             <Text style={styles.botaoTexto}>Quantidade</Text>
           </View>
         </TouchableOpacity>
+
         <TouchableOpacity onPress={handleRemoverQuantidade} style={styles.botaoREM}>
           <Text style={styles.botaoTexto}>Remover </Text>
           <View style={{ alignItems: 'center' }}>
             <Text style={styles.botaoTexto}>Quantidade</Text>
           </View>
         </TouchableOpacity>
+
+        <TouchableOpacity onPress={IniciaInventario} style={styles.botaoREM}>
+          <Text style={styles.botaoTexto}>Iniciar </Text>
+          <View style={{ alignItems: 'center' }}>
+            <Text style={styles.botaoTexto}>Inventário</Text>
+          </View>
+        </TouchableOpacity>
       </View>
-    
-          <ListaProdutos key={pageKey} products={allProducts} />
-        </View>
-      );
-    };
+
+      <ListaProdutos key={pageKey} products={allProducts} />
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -130,6 +155,25 @@ const styles = StyleSheet.create({
     backgroundColor: '#1a1a27', // Cor de fundo alterada para rgb(26, 26, 39)
     textAlign: 'center',
     alignItems: 'center',
+  },
+  welcomeText: {
+    fontSize: 18,
+    color: 'white',
+    marginTop: 20,
+  },
+  bottomButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20,
+    marginBottom: 20,
+    marginLeft: 10,
+    marginRight: 10,
+  },
+  buttonContainer: {
+    marginTop: 20,
+    borderRadius: 10,
+    overflow: 'hidden',
+    width: '15%',
   },
   header: {
     flexDirection: 'row',
@@ -146,6 +190,7 @@ const styles = StyleSheet.create({
   dateContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginTop: 20,
   },
   dateLabelContainer: {
     backgroundColor: '#1a1a27',
@@ -175,7 +220,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-  }, 
+  },
   dashboardTitle: {
     fontSize: 14,
     fontWeight: 'bold',
@@ -303,7 +348,8 @@ const styles = StyleSheet.create({
   },
   botaoREM: {
     backgroundColor: '#1A1A27',
-    marginRight: 10,
+    marginRight: 50,
+    marginLeft: 50,
     paddingVertical: 8, // Ajustar tamanho vertical
     paddingHorizontal: 35, // Ajustar tamanho horizontal
     borderRadius: 5,

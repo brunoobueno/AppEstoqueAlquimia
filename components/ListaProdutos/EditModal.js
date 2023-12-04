@@ -12,6 +12,7 @@ const EditModal = ({ isVisible, selectedProduct, onSave, onCancel, chamarModalDe
   const isMobile = Platform.OS === 'ios' || Platform.OS === 'android';
   const [editedProduct, setEditedProduct] = useState({
     ins_id: null, // Adicione o ins_id ao estado
+    ins_codigo: '',
     ins_nome: '',
     ins_quantidade: 0,
     ins_medida: '',
@@ -26,6 +27,7 @@ const EditModal = ({ isVisible, selectedProduct, onSave, onCancel, chamarModalDe
     if (selectedProduct) {
       setEditedProduct({
         ins_id: selectedProduct.ins_id, // Certifique-se de adicionar o ins_id
+        ins_codigo: selectedProduct.ins_codigo,
         ins_nome: selectedProduct.ins_nome,
         ins_quantidade: selectedProduct.ins_quantidade,
         ins_medida: selectedProduct.ins_medida,
@@ -66,9 +68,9 @@ const EditModal = ({ isVisible, selectedProduct, onSave, onCancel, chamarModalDe
           <Text style={styles.modalTitle}>Editar Produto</Text>
         </View>
         <View style={styles.infoColumn}>
-          <Text style={styles.infoTitle}>ID do Produto:</Text>
+          <Text style={styles.infoTitle}>Código do Produto:</Text>
           <View style={styles.borderedTextContainer}>
-            <Text style={styles.borderedText}>{editedProduct?.ins_id}</Text>
+            <Text style={styles.borderedText}>{editedProduct?.ins_codigo}</Text>
           </View>
 
           <View style={styles.infoColumn}>
