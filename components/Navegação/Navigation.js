@@ -14,6 +14,7 @@ import AtualizarADC from '../../Paginas/AtualizarQuantidade/AtualizarADC'
 import AtualizarREM from '../../Paginas/AtualizarQuantidade/AtualizarREM'
 import Confirmar from '../../Paginas/AtualizarQuantidade/Confirmar'
 import ConfirmarREM from '../../Paginas/AtualizarQuantidade/ConfirmarREM'
+import ScannerScreen from '../../Paginas/AtualizarQuantidade/ScannerScreen';
 
 const Stack = createStackNavigator();
 
@@ -34,6 +35,7 @@ function Navigation() {
         <Stack.Screen name='AtualizarREM' component={AtualizarREM}/>
         <Stack.Screen name='Confirmar' component={Confirmar}/>
         <Stack.Screen name='ConfirmarREM' component={ConfirmarREM}/>
+        <Stack.Screen name='ScannerScreen' component={ScannerScreen}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

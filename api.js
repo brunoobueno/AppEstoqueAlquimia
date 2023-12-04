@@ -249,6 +249,74 @@ app.put('/atualizar-produto/:id', async (req, res) => {
   }
 });
 
+// Rota para adicionar quantidade a um produto
+app.put('/adicionar-quantidade/:id', async (req, res) => {
+  const productId = req.params.id;
+  const { quantidade } = req.body; // A quantidade a ser adicionada
+
+  try {
+    // Consulta ao banco de dados para obter as informações do produto antes de adicionar a quantidade
+    const [rows] = await db.query('SELECT * FROM ins_insumo WHERE ins_id = ?', [productId]);
+
+    if (rows.length === 1) {
+      const produto = rows[0];
+      const novaQuantidade = produto.ins_quantidade + parseInt(quantidade);
+
+      // Execute a lógica para adicionar a quantidade ao produto
+      const [result] = await db.query('UPDATE ins_insumo SET ins_quantidade = ? WHERE ins_id = ?', [
+        novaQuantidade,
+        productId,
+      ]);
+
+      if (result.affectedRows === 1) {
+        res.status(200).json({ message: 'Quantidade adicionada com sucesso.', novaQuantidade });
+      } else {
+        res.status(500).json({ message: 'Erro ao adicionar quantidade.' });
+      }
+    } else {
+      res.status(404).json({ message: 'Produto não encontrado.' });
+    }
+  } catch (error) {
+    console.error('Erro ao adicionar quantidade ao produto:', error);
+    res.status(500).json({ message: 'Erro interno do servidor.' });
+  }
+});
+
+// Rota para subtrair quantidade de um produto
+app.put('/subtrair-quantidade/:id', async (req, res) => {
+  const productId = req.params.id;
+  const { quantidade } = req.body; // A quantidade a ser subtraída
+
+  try {
+    // Consulta ao banco de dados para obter as informações do produto antes de subtrair a quantidade
+    const [rows] = await db.query('SELECT * FROM ins_insumo WHERE ins_id = ?', [productId]);
+
+    if (rows.length === 1) {
+      const produto = rows[0];
+      const novaQuantidade = produto.ins_quantidade - parseInt(quantidade);
+
+      // Execute a lógica para subtrair a quantidade do produto
+      const [result] = await db.query('UPDATE ins_insumo SET ins_quantidade = ? WHERE ins_id = ?', [
+        novaQuantidade,
+        productId,
+      ]);
+
+      if (result.affectedRows === 1) {
+        res.status(200).json({ message: 'Quantidade subtraída com sucesso.', novaQuantidade });
+      } else {
+        res.status(500).json({ message: 'Erro ao subtrair quantidade.' });
+      }
+    } else {
+      res.status(404).json({ message: 'Produto não encontrado.' });
+    }
+  } catch (error) {
+    console.error('Erro ao subtrair quantidade do produto:', error);
+    res.status(500).json({ message: 'Erro interno do servidor.' });
+  }
+});
+
+
+
 // Rota para excluir um produto
 app.delete('/excluir-produto/:id', async (req, res) => {
   const productId = req.params.id;

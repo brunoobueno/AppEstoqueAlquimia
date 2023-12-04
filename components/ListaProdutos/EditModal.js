@@ -37,7 +37,7 @@ const EditModal = ({ isVisible, selectedProduct, onSave, onCancel, chamarModalDe
   }, [selectedProduct]);
 
   const handleSave = () => {
-    if (editedProduct.ins_nome == "") {
+    if (editedProduct.ins_nome === "") {
       setNomeProdutoError('Por favor, insira o nome do produto!');
     } else {
       setNomeProdutoError('');
@@ -45,14 +45,12 @@ const EditModal = ({ isVisible, selectedProduct, onSave, onCancel, chamarModalDe
         editedProduct.ins_medida = "Indefinido";
       }
       if (editedProduct.ins_id != undefined) {
-        // Execute a lógica de validação, se necessário
         onSave(editedProduct);
-        setIsModalVisible(false);
+        onCancel();  // Atualize aqui
       } else {
         console.error('ID do produto não definido ao salvar.');
       }
     }
-
   };
 
   const handleTeste = () => {

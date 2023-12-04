@@ -196,6 +196,7 @@ const RegistrationProduct = () => {
     keyboardType="numeric"
     onFocus={() => setIsQuantityFocused(true)}
     onBlur={() => setIsQuantityFocused(false)}
+    
   />
   <Picker
     selectedValue={selectedUnit}

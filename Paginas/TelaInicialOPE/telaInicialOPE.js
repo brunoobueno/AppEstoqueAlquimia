@@ -6,12 +6,22 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 
+// Defina a função getCurrentDate
+const getCurrentDate = () => {
+  const now = new Date();
+  const day = now.getDate().toString().padStart(2, '0'); // Adiciona zero à esquerda se necessário
+  const month = (now.getMonth() + 1).toString().padStart(2, '0'); // Adiciona zero à esquerda se necessário
+  const year = now.getFullYear();
+  return `${day}/${month}/${year}`;
+};
+
 const OperadorDashboardScreen = ({ route }) => {
   const [userType, setUserType] = useState('Operador');
   const [currentDate, setCurrentDate] = useState('');
   const [allProducts, setAllProducts] = useState([]);
   const [isModalVisible, setModalVisible] = useState(false);
   const [pageKey, setPageKey] = useState(Date.now());
+  const [isScannerActive, setScannerActive] = useState(false);
   const navigation = useNavigation();
 
   const storeData = async (key, value) => {
@@ -25,29 +35,7 @@ const OperadorDashboardScreen = ({ route }) => {
 
   const handleAdicionarQuantidade = () => {
     navigation.navigate('ScannerScreen');
-  };
-
-  const handleQRCodeRead = (data) => {
-    console.log('Código QR lido:', data);
-    navigation.navigate('Confirmar', { scannedData: data });
-  };
-
-  const getData = async (key) => {
-    try {
-      const jsonValue = await AsyncStorage.getItem(key);
-      return jsonValue != null ? JSON.parse(jsonValue) : null;
-    } catch (e) {
-      // error reading value
-    }
-  };
-
-  const getCurrentDate = () => {
-    const date = new Date();
-    const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
-    return formattedDate;
-  };
-
-  const toggleModal = () => setModalVisible(!isModalVisible);
+  };  
 
   const handleUserTypeChange = (value) => {
     setUserType(value);
@@ -57,7 +45,7 @@ const OperadorDashboardScreen = ({ route }) => {
   };
 
   const handleRemoverQuantidade = () => {
-    navigation.navigate('AtualizarREM');
+    navigation.navigate('ScannerScreen', { action: 'remover' });
   };
 
   const IniciaInventario = () => {
@@ -82,26 +70,6 @@ const OperadorDashboardScreen = ({ route }) => {
     await storeData('userLogin', null);
     navigation.navigate('LoginScreen');
   };
-
-  useEffect(() => {
-    // Use o valor do código QR lido do parâmetro da rota
-    const scannedData = route.params?.scannedData;
-
-    if (scannedData) {
-      // Faça o que for necessário com os dados do código QR
-      handleQRCodeRead(scannedData);
-    }
-  }, [route.params]);
-
-  useEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <TouchableOpacity onPress={handleAdicionarQuantidade}>
-          <Text style={styles.headerButton}>Adicionar Quantidade</Text>
-        </TouchableOpacity>
-      ),
-    });
-  }, [navigation]);
 
   return (
     <View style={styles.container}>
@@ -143,6 +111,7 @@ const OperadorDashboardScreen = ({ route }) => {
         </TouchableOpacity>
       </View>
 
+      {/* Exibe o restante do conteúdo da tela sem o BarCodeScanner */}
       <ListaProdutos key={pageKey} products={allProducts} />
     </View>
   );

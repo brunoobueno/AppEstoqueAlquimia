@@ -1,69 +1,62 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal } from 'react-native';
-import RNPickerSelect from 'react-native-picker-select';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
+import axios from 'axios';
 
-
-
-
-const App = ({ route }) => {
-  const [quantityProduct, setQuantityProduct] = useState('');
-  const [selectedUnit, setSelectedUnit] = useState('kg');
+const AtualizarADC = ({ route }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [error, setError] = useState('');
+  const [quantityProduct, setQuantityProduct] = useState('');
   const navigation = useNavigation();
 
-  useEffect(() => {
-    if (route.params?.scannedData) {
-      // Lógica para processar o código QR lido
-      const productCode = route.params.scannedData;
-      console.log('Código do produto lido:', productCode);
-    }
-  }, [route.params]);
+  const { insNome, insMedida, insId } = route.params || {};
 
   const handleGoBack = () => {
     navigation.goBack();
     return true;
   };
 
-  const handleSaveButtonPress = () => {
-    console.log('handleSaveButtonPress');
-    if (!quantityProduct.trim()) {
-      setError('Campo obrigatório');
-    } else {
-      setError('');
-      console.log('Before setting modal visible');
-      setModalVisible(true);
+  const handleAdd = () => {
+    // Verifique se há erros antes de abrir o modal
+    if (!error) {
+      setModalVisible(true); // Mostrar modal para confirmação
     }
   };
 
-  const handleCancelButtonPress = () => {
-    console.log('handleCancelButtonPress');
-    setModalVisible(false);
-    // Navegar de volta à página anterior
-    navigation.goBack();
-  };
+  const confirmarAdicao = async () => {
+    try {
+      setModalVisible(false); // Ocultar modal após a confirmação
 
-  const handleModalButton1Press = () => {
-    setModalVisible(false);
-  };
+      const response = await axios.put(`http://192.168.1.2:3000/adicionar-quantidade/${insId}`, {
+        quantidade: parseInt(quantityProduct),
+      });
 
-  const handleModalButton2Press = () => {
-    setModalVisible(false);
-    navigation.navigate('Confirmar');
+      if (response.status === 200) {
+        console.log('Quantidade adicionada com sucesso:', response.data.novaQuantidade);
+        navigation.navigate('Confirmar', {
+          // Passe quaisquer parâmetros necessários para a próxima página
+        });
+      } else {
+        console.error('Erro ao adicionar quantidade:', response.data.message);
+      }
+    } catch (error) {
+      console.error('Erro na solicitação para adicionar quantidade:', error);
+    }
   };
 
   return (
     <View style={styles.container}>
-       <Icon
+      <Icon
         name="arrow-left"
         size={24}
         color="#1A1A27"
         style={styles.backIcon}
         onPress={handleGoBack}
       />
-      <Text style={styles.title}>Digite quanto quer adicionar de ...</Text>
+
+      <Text style={styles.title}>Digite a Quantidade para Atualizar o Produto</Text>
+      <Text style={styles.title1}>{insNome}</Text>
 
       <View style={styles.inputContainer}>
         <TextInput
@@ -73,29 +66,25 @@ const App = ({ route }) => {
           value={quantityProduct}
           keyboardType="numeric"
         />
-
-        <RNPickerSelect
-          style={pickerSelectStyles}
-          value={selectedUnit}
-          onValueChange={(itemValue) => setSelectedUnit(itemValue)}
-          items={[
-            { label: 'kg', value: 'kg' },
-            { label: 'g', value: 'g' },
-            // Adicione outras unidades conforme necessário
-          ]}
+        <TextInput
+          style={[styles.input, styles.unidadeMedidaInput]}
+          value={insMedida}
+          editable={false}
         />
       </View>
 
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={handleSaveButtonPress}>
+        <TouchableOpacity style={styles.button} onPress={handleAdd}>
           <Text style={styles.buttonText}>Adicionar</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={handleCancelButtonPress}>
+
+        <TouchableOpacity style={styles.button} onPress={handleGoBack}>
           <Text style={styles.buttonText}>Cancelar</Text>
         </TouchableOpacity>
       </View>
+
       <Modal
         animationType="slide"
         transparent={true}
@@ -104,22 +93,20 @@ const App = ({ route }) => {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalText}>
-              Deseja realmente ADICONAR QTD?
-            </Text>
+            <Text style={styles.modalText}>Deseja realmente Adicionar?</Text>
 
             <View style={styles.modalButtonContainer}>
               <TouchableOpacity
                 style={styles.modalButton}
-                onPress={handleModalButton1Press}
+                onPress={() => setModalVisible(false)}
               >
                 <Text style={styles.modalButtonText}>Cancelar</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.modalButton}
-                onPress={handleModalButton2Press}
+                onPress={confirmarAdicao}
               >
-                <Text style={styles.modalButtonText}>Adicionar</Text>
+                <Text style={styles.modalButtonText}>Confirmar</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -128,28 +115,6 @@ const App = ({ route }) => {
     </View>
   );
 };
-const pickerSelectStyles = StyleSheet.create({
-  inputIOS: {
-    height: 40,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    width: 80,
-    marginRight: 10,
-    marginBottom: 20,
-    paddingHorizontal: 10,
-    borderRadius: 5,
-  },
-  inputAndroid: {
-    height: 40,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    width: 80,
-    marginRight: 10,
-    marginBottom: 20,
-    paddingHorizontal: 10,
-    borderRadius: 5,
-  },
-});
 
 const styles = StyleSheet.create({
   container: {
@@ -159,10 +124,16 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 5,
+    color: 'black',
+  },
+  title1: {
     fontSize: 25,
     fontWeight: 'bold',
-    marginBottom: 20,
-    color: 'black',
+    marginBottom: 40,
+    color: 'green',
   },
   inputContainer: {
     flexDirection: 'row',
@@ -173,13 +144,23 @@ const styles = StyleSheet.create({
     height: 40,
     borderWidth: 1,
     borderColor: '#ccc',
-    width: 200,
+    width: 150,
     marginRight: 10,
     marginBottom: 20,
     paddingHorizontal: 10,
     borderRadius: 5,
   },
   quantityInput: {},
+  unidadeMedidaInput: {
+    height: 40,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    width: 60,
+    marginLeft: 5,
+    marginBottom: 20,
+    paddingHorizontal: 10,
+    borderRadius: 5,
+  },
   buttonContainer: {
     flexDirection: 'row',
   },
@@ -188,6 +169,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginHorizontal: 5,
     borderRadius: 5,
+    width: 100,
   },
   buttonText: {
     color: 'white',
@@ -233,9 +215,9 @@ const styles = StyleSheet.create({
   backIcon: {
     position: 'absolute',
     top: 40,
-    left: 80,
+    left: 20,
     zIndex: 1,
   },
-}); 
+});
 
-export default App;
+export default AtualizarADC;

@@ -1,57 +1,78 @@
-import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
 
-const ScannerScreen = () => {
+const ScannerScreen = ({ route }) => {
   const navigation = useNavigation();
-  const cameraRef = useRef(null);
-
-  const handleBarcodeRead = ({ data }) => {
-    console.log('Código de barras lido:', data);
-    navigation.goBack();
-  };
+  const { action } = route.params || {};
+  const [quantityToRemove, setQuantityToRemove] = useState(0);
+  const [hasPermission, setHasPermission] = useState(null);
+  const [scanned, setScanned] = useState(false);
 
   useEffect(() => {
-    const handleQRCodeRead = ({ data }) => {
-      console.log('Código QR lido:', data);
-      navigation.navigate('OperadorDashboard', { scannedData: data });
-    };
+    (async () => {
+      const { status } = await BarCodeScanner.requestPermissionsAsync();
+      setHasPermission(status === 'granted');
+    })();
+  }, []);
 
-    navigation.setOptions({
-      headerShown: false, // Esconda o header nesta tela se necessário
-    });
+  const handleBarCodeScanned = async ({ type, data }) => {
+    setScanned(true);
 
-    // Resume a visualização da câmera ao entrar na tela
-    const resumeCamera = () => {
-      if (cameraRef.current) {
-        cameraRef.current.resumePreviewAsync();
+    try {
+      const response = await axios.get(`http://192.168.1.2:3000/produtos?ins_codigo=${parseInt(data, 10)}`);
+
+      if (response.data.length > 0) {
+        const insumoEncontrado = response.data.find(product => product.ins_codigo === parseInt(data, 10));
+        if (insumoEncontrado) {
+          console.log('Insumo encontrado:', insumoEncontrado);
+
+          if (action === 'remover') {
+            navigation.navigate('AtualizarREM', {
+              insNome: insumoEncontrado.ins_nome,
+              insId: insumoEncontrado.ins_id,
+              insQuantidade: insumoEncontrado.ins_quantidade || 0,
+              insMedida: insumoEncontrado.ins_medida || '',
+            });
+          } else {
+            navigation.navigate('AtualizarADC', {
+              insNome: insumoEncontrado.ins_nome,
+              insId: insumoEncontrado.ins_id,
+              insQuantidade: insumoEncontrado.ins_quantidade || 0,
+              insMedida: insumoEncontrado.ins_medida || '',
+            });
+          }
+        } else {
+          Alert.alert('Produto não encontrado', 'O produto correspondente ao código não foi encontrado.');
+        }
+      } else {
+        Alert.alert('Produto não encontrado', 'O produto correspondente ao código não foi encontrado.');
       }
-    };
+    } catch (error) {
+      console.error('Erro ao buscar produto:', error);
+    }
+  };
 
-    // Pausa a visualização da câmera ao sair da tela
-    const pauseCamera = () => {
-      if (cameraRef.current) {
-        cameraRef.current.pausePreviewAsync();
-      }
-    };
-
-    const subscriptionFocus = navigation.addListener('focus', resumeCamera);
-    const subscriptionBlur = navigation.addListener('blur', pauseCamera);
-
-    return () => {
-      subscriptionFocus();
-      subscriptionBlur();
-    };
-  }, [navigation]);
+  if (hasPermission === null) {
+    return <Text>Solicitando permissão para acesso à câmera</Text>;
+  }
+  if (hasPermission === false) {
+    return <Text>Sem acesso à câmera</Text>;
+  }
 
   return (
     <View style={{ flex: 1 }}>
       <BarCodeScanner
-        ref={(ref) => (cameraRef.current = ref)}
-        onBarCodeScanned={handleBarcodeRead}
-        style={StyleSheet.absoluteFillObject}
+        onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+        style={{ flex: 1 }}
       />
+      {scanned && (
+        <TouchableOpacity onPress={() => setScanned(false)}>
+          <Text style={{ fontSize: 20, color: 'white' }}>Toque para escanear novamente</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
