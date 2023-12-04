@@ -7,7 +7,8 @@ import Modal from 'react-native-modal';
 import moment from 'moment';
 import { TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { useSelector } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 
 const AdministradorDashboardScreen = () => {
@@ -23,10 +24,13 @@ const AdministradorDashboardScreen = () => {
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [isModalVisible3, setModalVisible3] = useState(false);
   const [produtosComLacunas, setProdutosComLacunas] = useState([]);
-  const [pageState, setPageState] = useState(/* Seu estado inicial aqui */);
-  const [pageKey, setPageKey] = useState(Date.now()); // Valor inicial pode ser qualquer valor único, como Date.now()
+  const [produtosDivergencias, setProdutosDivergencias] = useState([]);
+  const [quantidadeProdutosDivergencias, setQuantidadeProdutosDivergencias] = useState(0);
+  const [isModalVisible4, setModalVisible4] = useState(false);
+  const [pageState, setPageState] = useState();
+  const [pageKey, setPageKey] = useState(Date.now());
   const navigation = useNavigation();
-  
+
 
   const getCurrentDate = () => {
     const date = new Date();
@@ -34,16 +38,34 @@ const AdministradorDashboardScreen = () => {
     return formattedDate;
   };
 
+  const getColorForDashboardItem = (value) => {
+    if (value < 5) {
+      return '#77dd77'; // Verde
+    } else if (value >= 5 && value <= 11) {
+      return '#dfd880'; // Amarelo
+    } else {
+      return '#ff6961'; // Vermelho
+    }
+  };
+
+
   const resetPage = () => {
     // Altere o valor de pageKey para forçar o reset da página
     setPageKey(Date.now());
   };
 
-  
+  const logout = async () => {
+    
+    await storeData('userLogin', null);
+    navigation.navigate("LoginScreen");
+  }
 
   const toggleModal = () => setModalVisible(!isModalVisible);
   const toggleModal2 = () => setModalVisible2(!isModalVisible2);
   const toggleModal3 = () => setModalVisible3(!isModalVisible3);
+  const toggleModal4 = () => setModalVisible4(!isModalVisible4);
+
+
 
   const openModalFromDashboardItem1 = () => {
     openModal();
@@ -55,6 +77,19 @@ const AdministradorDashboardScreen = () => {
 
   const openModalFromDashboardItem3 = () => {
     openModal3();
+  };
+
+  const openModalFromDashboardItem4 = () => {
+    openModal4();
+  };
+
+  const storeData = async (key, value) => {
+    try {
+      const jsonValue = JSON.stringify(value);
+      await AsyncStorage.setItem(key, jsonValue);
+    } catch (e) {
+      // saving error
+    }
   };
 
   const openModal = async () => {
@@ -87,6 +122,12 @@ const AdministradorDashboardScreen = () => {
     }
   };
 
+  const openModal4 = (produtos) => {
+    setSelectedProducts(produtos);
+    toggleModal4();
+  };
+
+
   const handleUserTypeChange = (value) => {
     setUserType(value);
 
@@ -94,6 +135,19 @@ const AdministradorDashboardScreen = () => {
       console.log('Navegar para a página do administrador');
     }
   };
+
+  const fetchProdutosDivergencias = async () => {
+    try {
+      const response = await axios.get('http://localhost:3000/produtos-divergencias');
+      setQuantidadeProdutosDivergencias(response.data.quantidadeProdutosDivergencias);
+
+      const produtosResponse = await axios.get('http://localhost:3000/lista-produtos-divergencias');
+      setProdutosDivergencias(produtosResponse.data.produtosDivergencias);
+    } catch (error) {
+      console.error('Erro ao buscar produtos com divergências no estoque:', error);
+    }
+  };
+
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -138,48 +192,31 @@ const AdministradorDashboardScreen = () => {
     fetchProducts();
     fetchEstoqueBaixo();
     fetchItensComLacunas();
+    fetchProdutosDivergencias();
   }, []);
 
   return (
     <View style={styles.container}>
-<View style={styles.header}>
-        <Picker
-          style={styles.picker}
-          selectedValue={userType}
-          onValueChange={(itemValue) => handleUserTypeChange(itemValue)}
-        >
-          <Picker.Item label="Administrador" value="administrador" />
-          <Picker.Item label="Operador" value="operador" />
-        </Picker>
+      <View style={styles.header}>
 
         <View style={styles.bottomButtons1}>
-        <Button
-          title="Cadastrar Produto"
-          onPress={() => {
-            navigation.navigate('RegistrationProduct'); // Navegar para a tela de cadastro de produto
-          }}
-          color="#1a1a27" // Cor do botão alterada para rgb(26, 26, 39)
-        />
+          <Button
+            title="Cadastrar Produto"
+            onPress={() => {
+              navigation.navigate('RegistrationProduct'); // Navegar para a tela de cadastro de produto
+            }}
+            color="#1a1a27" // Cor do botão alterada para rgb(26, 26, 39)
+          />
         </View>
 
         <View style={styles.bottomButtons1}>
-        <Button
-          title="Cadastrar Usuário"
-          onPress={() => {
-            navigation.navigate('CadastroPessoas'); // Navegar para a tela de cadastro de produto
-          }}
-          color="#1a1a27" // Cor do botão alterada para rgb(26, 26, 39)
-        />
-        </View>
-
-        <View style={styles.bottomButtons1}>
-        <Button
-          title="Iniciar Inventário"
-          onPress={() => {
-            navigation.navigate('TelaInventario'); // Navegar para a tela de cadastro de produto
-          }}
-          color="#1a1a27" // Cor do botão alterada para rgb(26, 26, 39)
-        />
+          <Button
+            title="Cadastrar Usuário"
+            onPress={() => {
+              navigation.navigate('CadastroPessoas'); // Navegar para a tela de cadastro de produto
+            }}
+            color="#1a1a27" // Cor do botão alterada para rgb(26, 26, 39)
+          />
         </View>
 
         <View style={styles.dateContainer}>
@@ -189,8 +226,8 @@ const AdministradorDashboardScreen = () => {
           <View style={styles.dateValueContainer}>
             <Text style={styles.dateValue}>{currentDate}</Text>
           </View>
-          
         </View>
+        <Button title="Sair" onPress={logout} />
       </View>
 
       <View style={styles.dashboard}>
@@ -201,137 +238,139 @@ const AdministradorDashboardScreen = () => {
 
 
         <View style={styles.dashboard}>
-        <View style={styles.dashboardInfo}>
-          
-          {/* Dashboard Item 1 */}
-          <View style={styles.dashboardItem1} onTouchEnd={openModalFromDashboardItem1}>
-        <View style={styles.dashboardValueContainer}>
-          <Text style={styles.dashboardValue} onPress={openModalFromDashboardItem1}>{estoqueBaixo}</Text>
-          <Text style={styles.dashboardUnit}>Un.</Text>
-        </View>
-        <Text style={styles.dashboardTitle} onPress={openModalFromDashboardItem1}>Produtos com Estoque Baixo</Text>
-      </View>
+          <View style={styles.dashboardInfo}>
 
-
-          {/* Dashboard Item 2 */}
-          <View style={styles.dashboardItem2} onTouchEnd={openModalFromDashboardItem2}>
-  <View style={styles.dashboardValueContainer}>
-    <Text style={styles.dashboardValue}  onPress={openModalFromDashboardItem2}>{vencimentoProximo}</Text>
-    <Text style={styles.dashboardUnit}>Un.</Text>
-  </View>
-  <Text style={styles.dashboardTitle} onPress={openModalFromDashboardItem2}>Validade Próxima do Vencimento</Text>
-</View>
-
-          {/* Dashboard Item 3 */}
-      <View style={styles.dashboardItem3} onTouchEnd={openModalFromDashboardItem3}>
-        <View style={styles.dashboardValueContainer}>
-          <Text style={styles.dashboardValue}  onPress={openModalFromDashboardItem3}>{itensComLacunas}</Text>
-          <Text style={styles.dashboardUnit}>Un.</Text>
-        </View>
-        <Text style={styles.dashboardTitle}  onPress={openModalFromDashboardItem3}>
-          Itens que requerem atenção no Cadastro
-        </Text>
-      </View>
-
-          {/* Dashboard Item 4 */}
-          <View style={styles.dashboardItem4}>
-          <View style={styles.dashboardValueContainer}>
-              <Text style={styles.dashboardValue}>{9.3}</Text>
-              <Text style={styles.dashboardUnit}>Dias</Text>
+            {/* Dashboard Item 1 */}
+            <View style={[styles.dashboardItem1, { backgroundColor: getColorForDashboardItem(estoqueBaixo) }]} onTouchEnd={openModalFromDashboardItem1}>
+              <View style={styles.dashboardValueContainer}>
+                <Text style={styles.dashboardValue} onPress={openModalFromDashboardItem1}>{estoqueBaixo}</Text>
+                <Text style={styles.dashboardUnit}>Un.</Text>
+              </View>
+              <Text style={styles.dashboardTitle} onPress={openModalFromDashboardItem1}>Produtos com Estoque Baixo</Text>
             </View>
-            <Text style={styles.dashboardTitle}>Tempo médio de Reposição</Text>
-          </View>
 
+
+            {/* Dashboard Item 2 */}
+            <View style={[styles.dashboardItem2, { backgroundColor: getColorForDashboardItem(vencimentoProximo) }]} onTouchEnd={openModalFromDashboardItem2}>
+              <View style={styles.dashboardValueContainer}>
+                <Text style={styles.dashboardValue} onPress={openModalFromDashboardItem2}>{vencimentoProximo}</Text>
+                <Text style={styles.dashboardUnit}>Un.</Text>
+              </View>
+              <Text style={styles.dashboardTitle} onPress={openModalFromDashboardItem2}>Validade Próxima do Vencimento</Text>
+            </View>
+
+            {/* Dashboard Item 3 */}
+            <View style={[styles.dashboardItem3, { backgroundColor: getColorForDashboardItem(itensComLacunas) }]} onTouchEnd={openModalFromDashboardItem3}>
+              <View style={styles.dashboardValueContainer}>
+                <Text style={styles.dashboardValue} onPress={openModalFromDashboardItem3}>{itensComLacunas}</Text>
+                <Text style={styles.dashboardUnit}>Un.</Text>
+              </View>
+              <Text style={styles.dashboardTitle} onPress={openModalFromDashboardItem3}>
+                Itens que requerem atenção no Cadastro
+              </Text>
+            </View>
+
+            {/* Dashboard Item 4 */}
+            <View style={[styles.dashboardItem4, { backgroundColor: getColorForDashboardItem(quantidadeProdutosDivergencias) }]} onTouchEnd={() => openModal4(produtosDivergencias)}>
+              <View style={styles.dashboardValueContainer}>
+                <Text style={styles.dashboardValue}>{quantidadeProdutosDivergencias}</Text>
+                <Text style={styles.dashboardUnit}>Un.</Text>
+              </View>
+              <Text style={styles.dashboardTitle} onPress={() => openModal4(produtosDivergencias)}>
+                Produtos com Divergências no Estoque
+              </Text>
+            </View>
+
+          </View>
         </View>
-      </View>
       </View>
 
 
       <ListaProdutos key={pageKey} products={allProducts} />
 
- {/* Modal 1 */}
- <Modal isVisible={isModalVisible} onBackdropPress={toggleModal}>
-  <View style={styles.modalContainer}>
-    {/* Adicione um estilo ao View do título */}
-    <View style={styles.modalTitleContainer}>
-      <Text style={styles.modalTitle}>{estoqueBaixo} Produtos com Estoque Baixo</Text>
-    </View>
-    <FlatList
-      data={selectedProducts}
-      keyExtractor={(item) => item.ins_id.toString()}
-      renderItem={({ item, index }) => (
-        <View style={[styles.modalItem, { backgroundColor: index % 2 === 0 ? '#f2f2f2' : 'white' }]}>
-          <View style={styles.row}>
-            <View style={styles.centeredColumn}>
-              <Text style={styles.modalLabel}>Nome do Produto</Text>
-              <Text style={styles.modalItemText}>{item.ins_nome}</Text>
-            </View>
-            <View style={styles.centeredColumn}>
-              <Text style={styles.modalLabel}>Quantidade Atual</Text>
-              <Text style={styles.modalItemText}>{item.ins_quantidade}</Text>
-            </View>
-            <View style={styles.centeredColumn}>
-              <Text style={styles.modalLabel}>Quantidade Mínima</Text>
-              <Text style={styles.modalItemText}>{item.ins_minimo}</Text>
-            </View>
-            <View style={styles.centeredColumn}>
-              <Text style={styles.modalLabel}>Unidade de Medida</Text>
-              <Text style={styles.modalItemText}>{item.ins_medida}</Text>
-            </View>
-            <View style={styles.centeredColumn}>
-              <Text style={styles.modalLabel}>Data de Vencimento</Text>
-              <Text style={styles.modalItemText}>{moment(item.ins_vencimento).format('DD/MM/YYYY')}</Text>
-            </View>
+      {/* Modal 1 */}
+      <Modal isVisible={isModalVisible} onBackdropPress={toggleModal}>
+        <View style={styles.modalContainer}>
+          {/* Adicione um estilo ao View do título */}
+          <View style={styles.modalTitleContainer}>
+            <Text style={styles.modalTitle}>{estoqueBaixo} Produtos com Estoque Baixo</Text>
+          </View>
+          <FlatList
+            data={selectedProducts}
+            keyExtractor={(item) => item.ins_id.toString()}
+            renderItem={({ item, index }) => (
+              <View style={[styles.modalItem, { backgroundColor: index % 2 === 0 ? '#f2f2f2' : 'white' }]}>
+                <View style={styles.row}>
+                  <View style={styles.centeredColumn}>
+                    <Text style={styles.modalLabel}>Nome do Produto</Text>
+                    <Text style={styles.modalItemText}>{item.ins_nome}</Text>
+                  </View>
+                  <View style={styles.centeredColumn}>
+                    <Text style={styles.modalLabel}>Quantidade Atual</Text>
+                    <Text style={styles.modalItemText}>{item.ins_quantidade}</Text>
+                  </View>
+                  <View style={styles.centeredColumn}>
+                    <Text style={styles.modalLabel}>Quantidade Mínima</Text>
+                    <Text style={styles.modalItemText}>{item.ins_minimo}</Text>
+                  </View>
+                  <View style={styles.centeredColumn}>
+                    <Text style={styles.modalLabel}>Unidade de Medida</Text>
+                    <Text style={styles.modalItemText}>{item.ins_medida}</Text>
+                  </View>
+                  <View style={styles.centeredColumn}>
+                    <Text style={styles.modalLabel}>Data de Vencimento</Text>
+                    <Text style={styles.modalItemText}>{moment(item.ins_vencimento).format('DD/MM/YYYY')}</Text>
+                  </View>
+                </View>
+              </View>
+            )}
+          />
+          <View style={styles.modalButtonContainer}>
+            <Button title="Fechar" onPress={toggleModal} color="#1a1a27" buttonStyle={styles.modalCloseButton} />
           </View>
         </View>
-      )}
-    />
-    <View style={styles.modalButtonContainer}>
-    <Button title="Fechar" onPress={toggleModal} color="#1a1a27" buttonStyle={styles.modalCloseButton}/>
-    </View>
-  </View>
-</Modal>
+      </Modal>
 
-{/* Modal 2 */}
-<Modal isVisible={isModalVisible2} onBackdropPress={toggleModal2}>
-  <View style={styles.modalContainer}>
-    <View style={styles.modalTitleContainer}>
-      <Text style={styles.modalTitle}>{vencimentoProximo} Produtos com Vencimento Próximo</Text>
-    </View>
-    <FlatList
-      data={vencimentoProximoProducts}
-      keyExtractor={(item) => item.ins_id.toString()}
-      renderItem={({ item, index }) => (
-        <View style={[styles.modalItem, { backgroundColor: index % 2 === 0 ? '#f2f2f2' : 'white' }]}>
-          <View style={styles.row}>
-            <View style={styles.centeredColumn}>
-              <Text style={styles.modalLabel}>Nome do Produto:</Text>
-              <Text style={styles.modalItemText}>{item.ins_nome}</Text>
-            </View>
-            <View style={styles.centeredColumn}>
-              <Text style={styles.modalLabel}>Quantidade:</Text>
-              <Text style={styles.modalItemText}>{item.ins_quantidade}</Text>
-            </View>
-            <View style={styles.centeredColumn}>
-              <Text style={styles.modalLabel}>Unidade de Medida:</Text>
-              <Text style={styles.modalItemText}>{item.ins_medida}</Text>
-            </View>
-            <View style={styles.centeredColumn}>
-              <Text style={styles.modalLabel}>Data de Vencimento:</Text>
-              <Text style={styles.modalItemText}>{moment(item.ins_vencimento).format('DD/MM/YYYY')}</Text>
-            </View>
+      {/* Modal 2 */}
+      <Modal isVisible={isModalVisible2} onBackdropPress={toggleModal2}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalTitleContainer}>
+            <Text style={styles.modalTitle}>{vencimentoProximo} Produtos com Vencimento Próximo</Text>
+          </View>
+          <FlatList
+            data={vencimentoProximoProducts}
+            keyExtractor={(item) => item.ins_id.toString()}
+            renderItem={({ item, index }) => (
+              <View style={[styles.modalItem, { backgroundColor: index % 2 === 0 ? '#f2f2f2' : 'white' }]}>
+                <View style={styles.row}>
+                  <View style={styles.centeredColumn}>
+                    <Text style={styles.modalLabel}>Nome do Produto:</Text>
+                    <Text style={styles.modalItemText}>{item.ins_nome}</Text>
+                  </View>
+                  <View style={styles.centeredColumn}>
+                    <Text style={styles.modalLabel}>Quantidade:</Text>
+                    <Text style={styles.modalItemText}>{item.ins_quantidade}</Text>
+                  </View>
+                  <View style={styles.centeredColumn}>
+                    <Text style={styles.modalLabel}>Unidade de Medida:</Text>
+                    <Text style={styles.modalItemText}>{item.ins_medida}</Text>
+                  </View>
+                  <View style={styles.centeredColumn}>
+                    <Text style={styles.modalLabel}>Data de Vencimento:</Text>
+                    <Text style={styles.modalItemText}>{moment(item.ins_vencimento).format('DD/MM/YYYY')}</Text>
+                  </View>
+                </View>
+              </View>
+            )}
+          />
+          <View style={styles.modalButtonContainer}>
+            <Button title="Fechar" onPress={toggleModal2} color="#1a1a27" buttonStyle={styles.modalCloseButton} />
           </View>
         </View>
-      )}
-    />
-    <View style={styles.modalButtonContainer}>
-      <Button title="Fechar" onPress={toggleModal2} color="#1a1a27" buttonStyle={styles.modalCloseButton} />
-    </View>
-  </View>
-</Modal>
+      </Modal>
 
-{/* Modal 3 */}
-<Modal isVisible={isModalVisible3} onBackdropPress={toggleModal3}>
+      {/* Modal 3 */}
+      <Modal isVisible={isModalVisible3} onBackdropPress={toggleModal3}>
         <View style={styles.modalContainer}>
           <View style={styles.modalTitleContainer}>
             <Text style={styles.modalTitle}>
@@ -339,31 +378,31 @@ const AdministradorDashboardScreen = () => {
             </Text>
           </View>
           <FlatList
-      data={produtosComLacunas}
-      keyExtractor={(item) => item.ins_id.toString()}
-      renderItem={({ item, index }) => (
-        <View style={[styles.modalItem, { backgroundColor: index % 2 === 0 ? '#f2f2f2' : 'white' }]}>
-          <View style={styles.row}>
-            <View style={styles.centeredColumn}>
-              <Text style={styles.modalLabel}>Nome do Produto:</Text>
-              <Text style={styles.modalItemText}>{item.ins_nome}</Text>
-            </View>
-            <View style={styles.centeredColumn}>
-              <Text style={styles.modalLabel}>Quantidade:</Text>
-              <Text style={styles.modalItemText}>{item.ins_quantidade}</Text>
-            </View>
-            <View style={styles.centeredColumn}>
-              <Text style={styles.modalLabel}>Unidade de Medida:</Text>
-              <Text style={styles.modalItemText}>{item.ins_medida}</Text>
-            </View>
-            <View style={styles.centeredColumn}>
-              <Text style={styles.modalLabel}>Data de Vencimento:</Text>
-              <Text style={styles.modalItemText}>{moment(item.ins_vencimento).format('DD/MM/YYYY')}</Text>
-            </View>
-          </View>
-        </View>
-      )}
-    />
+            data={produtosComLacunas}
+            keyExtractor={(item) => item.ins_id.toString()}
+            renderItem={({ item, index }) => (
+              <View style={[styles.modalItem, { backgroundColor: index % 2 === 0 ? '#f2f2f2' : 'white' }]}>
+                <View style={styles.row}>
+                  <View style={styles.centeredColumn}>
+                    <Text style={styles.modalLabel}>Nome do Produto:</Text>
+                    <Text style={styles.modalItemText}>{item.ins_nome}</Text>
+                  </View>
+                  <View style={styles.centeredColumn}>
+                    <Text style={styles.modalLabel}>Quantidade:</Text>
+                    <Text style={styles.modalItemText}>{item.ins_quantidade}</Text>
+                  </View>
+                  <View style={styles.centeredColumn}>
+                    <Text style={styles.modalLabel}>Unidade de Medida:</Text>
+                    <Text style={styles.modalItemText}>{item.ins_medida}</Text>
+                  </View>
+                  <View style={styles.centeredColumn}>
+                    <Text style={styles.modalLabel}>Data de Vencimento:</Text>
+                    <Text style={styles.modalItemText}>{moment(item.ins_vencimento).format('DD/MM/YYYY')}</Text>
+                  </View>
+                </View>
+              </View>
+            )}
+          />
           <View style={styles.modalButtonContainer}>
             <Button
               title="Fechar"
@@ -375,7 +414,54 @@ const AdministradorDashboardScreen = () => {
         </View>
       </Modal>
 
-      
+      {/* Modal 4 */}
+      <Modal isVisible={isModalVisible4} onBackdropPress={toggleModal4}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalTitleContainer}>
+            <Text style={styles.modalTitle}>
+              {quantidadeProdutosDivergencias} Divergências no Estoque
+            </Text>
+          </View>
+          <FlatList
+            data={selectedProducts}
+            keyExtractor={(_, index) => index.toString()}
+            renderItem={({ item }) => (
+              <View style={styles.modalItem}>
+                <View style={styles.row}>
+                  <View style={styles.centeredColumn}>
+                    <Text style={styles.modalLabel}>Nome do Produto:</Text>
+                    <Text style={styles.modalItemText}>{item.ins_nome}</Text>
+                  </View>
+                  <View style={styles.centeredColumn}>
+                    <Text style={styles.modalLabel}>Quantidade:</Text>
+                    <Text style={styles.modalItemText}>{item.ins_quantidade}</Text>
+                  </View>
+                  <View style={styles.centeredColumn}>
+                    <Text style={styles.modalLabel}>Unidade de Medida:</Text>
+                    <Text style={styles.modalItemText}>{item.ins_medida}</Text>
+                  </View>
+                  <View style={styles.centeredColumn}>
+                    <Text style={styles.modalLabel}>Quantidade Real:</Text>
+                    <Text style={styles.modalItemText}>{item.inv_real}</Text>
+                  </View>
+                </View>
+              </View>
+            )}
+          />
+          <View style={styles.modalButtonContainer}>
+            <Button
+              title="Fechar"
+              onPress={toggleModal4}
+              color="#1a1a27"
+              buttonStyle={styles.modalCloseButton}
+            />
+          </View>
+        </View>
+      </Modal>
+
+
+
+
     </View>
   );
 };
@@ -432,7 +518,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-  }, 
+  },
   dashboardTitle: {
     fontSize: 14,
     fontWeight: 'bold',

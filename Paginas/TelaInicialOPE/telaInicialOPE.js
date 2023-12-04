@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { Button } from 'react-native-elements';
 import ListaProdutos from '../../components/ListaProdutos/ListaProdutos';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 import axios from 'axios';
-import Picker from '@react-native-picker/picker';
-import Modal from 'react-native-modal';
-import moment from 'moment';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const OperadorDashboardScreen = () => {
     const [userType, setUserType] = useState('Operador');
@@ -14,6 +15,24 @@ const OperadorDashboardScreen = () => {
     const [isModalVisible, setModalVisible] = useState(false);
     const [pageKey, setPageKey] = useState(Date.now());
     const navigation = useNavigation();
+
+    const storeData = async (key, value) => {
+      try {
+        const jsonValue = JSON.stringify(value);
+        await AsyncStorage.setItem(key, jsonValue);
+      } catch (e) {
+        // saving error
+      }
+    };
+
+    const getData = async (key) => {
+      try {
+        const jsonValue = await AsyncStorage.getItem(key);
+        return jsonValue != null ? JSON.parse(jsonValue) : null;
+      } catch (e) {
+        // error reading value
+      }
+    };
 
     const getCurrentDate = () => {
         const date = new Date();
@@ -29,11 +48,21 @@ const OperadorDashboardScreen = () => {
           console.log('Navegar para a página do administrador');
         }
       };
+
+      const handleAdicionarQuantidade = () => {
+        // Navegar para a página 'AtualizarADC'
+        navigation.navigate('AtualizarADC');
+      };
+    
+      const handleRemoverQuantidade = () => {
+        // Navegar para a página 'AtualizarADC'
+        navigation.navigate('AtualizarREM');
+      };
     
       useEffect(() => {
         const fetchProducts = async () => {
           try {
-            const response = await axios.get('http://localhost:3000/produtos');
+            const response = await axios.get('http://192.168.1.2:3000/produtos');
             setAllProducts(response.data);
           } catch (error) {
             console.error('Erro ao buscar produtos:', error);
@@ -43,6 +72,12 @@ const OperadorDashboardScreen = () => {
         fetchProducts();
         setCurrentDate(getCurrentDate());
       }, []);
+
+      const logout = async () => {
+
+        await storeData('userLogin', null);
+        navigation.navigate("LoginScreen");
+      }
 
       return (
         <View style={styles.container}>
@@ -55,7 +90,33 @@ const OperadorDashboardScreen = () => {
                 <Text style={styles.dateValue}>{currentDate}</Text>
               </View>
             </View>
+            <Button title="Sair" onPress={logout} />
           </View>
+
+          <View style={styles.bottomButtons1}>
+        <Button
+          title="Iniciar Inventário"
+          onPress={() => {
+            navigation.navigate('TelaInventario'); // Navegar para a tela de cadastro de produto
+          }}
+          color="#1a1a27" // Cor do botão alterada para rgb(26, 26, 39)
+        />
+        </View>
+
+        <View style={styles.bottomButtons}>
+        <TouchableOpacity onPress={handleAdicionarQuantidade} style={styles.botaoADC}>
+          <Text style={styles.botaoTexto}>Adicionar</Text>
+          <View style={{ alignItems: 'center' }}>
+            <Text style={styles.botaoTexto}>Quantidade</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={handleRemoverQuantidade} style={styles.botaoREM}>
+          <Text style={styles.botaoTexto}>Remover </Text>
+          <View style={{ alignItems: 'center' }}>
+            <Text style={styles.botaoTexto}>Quantidade</Text>
+          </View>
+        </TouchableOpacity>
+      </View>
     
           <ListaProdutos key={pageKey} products={allProducts} />
         </View>
@@ -174,10 +235,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 8,
   },
-  bottomButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
   modalContainer: {
     flex: 1,
     borderRadius: 8,
@@ -229,6 +286,33 @@ const styles = StyleSheet.create({
   },
   icone2: {
     marginRight: 10,
+  },
+  bottomButtons: {
+    flexDirection: 'row',
+    marginLeft: 100,
+    marginTop: 20,
+    justifyContent: 'space-between',
+  },
+  botaoADC: {
+    backgroundColor: '#1A1A27',
+    paddingVertical: 10,
+    paddingHorizontal: 30, // Ajustar tamanho horizontal
+    marginLeft: 10,
+    borderRadius: 5,
+    marginVertical: 10,
+  },
+  botaoREM: {
+    backgroundColor: '#1A1A27',
+    marginRight: 10,
+    paddingVertical: 8, // Ajustar tamanho vertical
+    paddingHorizontal: 35, // Ajustar tamanho horizontal
+    borderRadius: 5,
+    marginVertical: 10,
+  },
+  botaoTexto: {
+    color: 'white',
+    textAlign: 'center',
+    fontSize: 16,
   },
 });
 

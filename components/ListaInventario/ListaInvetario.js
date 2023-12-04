@@ -1,26 +1,57 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, Button, StyleSheet, TextInput, TouchableOpacity, Modal } from 'react-native';
-import moment from 'moment';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import axios from 'axios';
+import EditQuantityModal from './EditQuantityModal';
 
-
-
-
-const ListaInventario = ({ products }) => {
+const ListaInventario = () => {
   const [sortedProducts, setSortedProducts] = useState([]);
   const [sortConfig, setSortConfig] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [selectedProductForDeletion, setSelectedProductForDeletion] = useState(null);
-  const [pageKey, setPageKey] = useState(Date.now()); // Adicione o estado pageKey
+  const [isEditModalVisible, setEditModalVisible] = useState(false);
+  const [isConfirmationModalVisible, setConfirmationModalVisible] = useState(false);
+  const [selectedProductForEdit, setSelectedProductForEdit] = useState(null);
+  const [newQuantity, setNewQuantity] = useState('');
 
-  
+  const handleEdit = (product) => {
+    setSelectedProductForEdit(product);
+    setEditModalVisible(true);
+  };
+
+  const handleEditConfirmation = (quantity) => {
+    // Aqui você pode mostrar outro modal de confirmação se desejar
+
+    // Defina a nova quantidade no estado ou faça o que for necessário
+    setNewQuantity(quantity);
+
+    // Abre o modal de confirmação
+    setConfirmationModalVisible(true);
+  };
+
+  const handleConfirmationResult = (confirmed) => {
+    if (confirmed) {
+      // Faça a atualização no banco de dados com newQuantity
+      console.log(`Atualizar ${selectedProductForEdit.ins_nome} com a quantidade ${newQuantity}`);
+    }
+
+     // Limpe os estados e feche os modais
+     setNewQuantity('');
+     setEditModalVisible(false);
+     setConfirmationModalVisible(false);
+   };
 
   useEffect(() => {
-    setSortedProducts(products);
-  }, [products]);
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const response = await axios.get('http://192.168.1.2:3000/produtos');
+      setSortedProducts(response.data);
+    } catch (error) {
+      console.error('Erro ao buscar produtos:', error);
+    }
+  };
 
   const handleSort = (key) => {
     let direction = 'ascending';
@@ -43,47 +74,6 @@ const ListaInventario = ({ products }) => {
     setSortConfig({ key, direction });
   };
 
-
-
-  const handleEdit = (product) => {
-    setSelectedProduct(product);
-    setIsModalVisible(true);
-  };
-
-  const handleSaveEdit = async (editedProduct) => {
-    const productId = editedProduct.ins_id; // Supondo que ins_id seja a chave correta para identificar o produto no backend
-  
-    try {
-      const response = await fetch(`http://localhost:3000/atualizar-produto/${productId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ins_nome: editedProduct.ins_nome,
-          ins_quantidade: editedProduct.ins_quantidade,
-          ins_medida: editedProduct.ins_medida,
-        }),
-      });
-  
-      if (response.ok) {
-        console.log('Produto atualizado com sucesso!');
-        // Atualize a lista de produtos após a edição
-        const updatedProducts = sortedProducts.map((product) =>
-          product.ins_id === productId ? editedProduct : product
-        );
-        setSortedProducts(updatedProducts);
-        setIsModalVisible(false);
-      } else {
-        console.error('Erro ao atualizar produto:', response.statusText);
-        // Trate o erro de acordo com a sua necessidade
-      }
-    } catch (error) {
-      console.error('Erro ao atualizar produto:', error.message);
-      // Trate o erro de acordo com a sua necessidade
-    }
-  };
-
   const renderPaginationButtons = () => {
     const totalPages = Math.ceil(sortedProducts.length / itemsPerPage);
 
@@ -99,40 +89,17 @@ const ListaInventario = ({ products }) => {
       );
     }
 
-    const handleDeleteCallback = (deletedProduct) => {
-      // Atualize a lista de produtos após a exclusão
-      const updatedProducts = sortedProducts.filter((p) => p.ins_id !== deletedProduct.ins_id);
-      setSortedProducts(updatedProducts);
-      
-      // Chame a função para resetar a página
-      resetPage();
-    };
-  
-    const resetPage = () => {
-      // Altere o valor de pageKey para forçar o reset da página
-      setPageKey(Date.now());
-    };
-
     return buttons;
   };
 
   const renderProductItem = ({ item, index }) => (
-    <View style={[styles.productItem, { backgroundColor: index % 2 === 0 ? '#f2f2f2' : 'white' }]}>
-      <Text style={styles.productItemText}>{item.ins_nome}</Text>
-      <Text style={styles.productItemText}>{item.ins_quantidade}</Text>
-      <Text style={styles.productItemText}>{item.ins_medida}</Text>
-      <Text style={styles.productItemText}>{moment(item.ins_vencimento).format('DD/MM/YYYY')}</Text>
-      <View style={styles.icone1}>
-      <TouchableOpacity onPress={() => handleEdit(item)}>
-        <Icon name="pencil" size={20} color="#1a1a27" />
-      </TouchableOpacity>
+    <TouchableOpacity onPress={() => handleEdit(item)}>
+      <View style={[styles.productItem, { backgroundColor: index % 2 === 0 ? '#f2f2f2' : 'white' }]}>
+        <Text style={styles.productItemText}>{item.ins_nome}</Text>
+        <Text style={styles.productItemText}>{item.ins_quantidade}</Text>
+        <Text style={styles.productItemText}>{item.ins_medida}</Text>
       </View>
-      <View style={styles.icone2}>
-      <TouchableOpacity onPress={() => handleDelete(item, handleDeleteCallback)}>
-    <Icon name="trash" size={20} color="red" />
-  </TouchableOpacity>
-  </View>
-    </View>
+    </TouchableOpacity>
   );
 
   const handleDelete = (product) => {
@@ -141,19 +108,12 @@ const ListaInventario = ({ products }) => {
   };
 
   const handleDeleteCallback = (deletedProduct) => {
-    // Atualize a lista de produtos após a exclusão
     const updatedProducts = sortedProducts.filter((p) => p.ins_id !== deletedProduct.ins_id);
     setSortedProducts(updatedProducts);
   };
 
   return (
     <View style={styles.container}>
-      <TextInput
-        style={styles.searchBar}
-        placeholder="Insira o que deseja Pesquisar..."
-        value={searchTerm}
-        onChangeText={handleSearch}
-      />
       <FlatList
         data={sortedProducts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)}
         keyExtractor={(item) => item.ins_id.toString()}
@@ -161,24 +121,32 @@ const ListaInventario = ({ products }) => {
         ListHeaderComponent={() => (
           <View style={styles.header}>
             <Text style={[styles.headerText, { backgroundColor: '#1a1a27' }]} onPress={() => handleSort('ins_nome')}>
-              Nome Produto
+              Produto
             </Text>
             <Text style={[styles.headerText, { backgroundColor: '#1a1a27' }]} onPress={() => handleSort('ins_quantidade')}>
-              Quantidade
+              Qtd. Atual
             </Text>
             <Text style={[styles.headerText, { backgroundColor: '#1a1a27' }]} onPress={() => handleSort('ins_medida')}>
-              Unidade de Medida
+              Medida
             </Text>
             <Text
               style={[styles.headerText, { backgroundColor: '#1a1a27' }]}
               onPress={() => handleSort('novaDataVencimento')}
             >
-              Data de Vencimento
+              Qtd. Real
             </Text>
           </View>
         )}
       />
       <View style={styles.paginationContainer}>{renderPaginationButtons()}</View>
+
+      <EditQuantityModal
+        isVisible={isEditModalVisible}
+        product={selectedProductForEdit}
+        onCancel={() => setEditModalVisible(false)}
+        onConfirm={handleEditConfirmation}
+      />
+
     </View>
   );
 };
@@ -188,34 +156,6 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     margin: 10,
-  },
-  searchBar: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    borderRadius: 10,
-    backgroundColor: 'white',
-    margin: 10,
-    paddingLeft: 10,
-    marginHorizontal: 50,
-    paddingHorizontal: 50,
-    marginBottom: 20,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    borderBottomWidth: 1,
-    borderColor: '#ccc',
-    backgroundColor: '#1a1a27',
-    padding: 8,
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
-  },
-  headerText: {
-    fontWeight: 'bold',
-    padding: 8,
-    color: 'white',
-    flex: 1,
   },
   productItem: {
     flexDirection: 'row',
@@ -240,6 +180,22 @@ const styles = StyleSheet.create({
   },
   icone2: {
     marginRight: 10,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    borderBottomWidth: 1,
+    borderColor: '#ccc',
+    backgroundColor: '#1a1a27',
+    padding: 8,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+  },
+  headerText: {
+    fontWeight: 'bold',
+    padding: 8,
+    color: 'white',
+    flex: 1,
   },
 });
 

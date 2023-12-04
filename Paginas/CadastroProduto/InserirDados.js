@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TextInput, Pressable, BackHandler, ScrollView, Picker } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { FontSize, Color, FontFamily, Padding } from '../../EstilosGlobais/GlobalStyles';
-import axios from 'axios';
-import { HeaderBackButton } from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/FontAwesome5';
-import moment from 'moment'; // Importe o Moment.js para trabalhar com datas
+import moment from 'moment'; 
+import axios from 'axios';
+
 
 
 // Lista de unidades
@@ -29,11 +28,18 @@ const cadastrarProduto = async (dadosProduto) => {
   }
 };
 
+const generateRandomCode = () => {
+  // Gera um número aleatório de 9 dígitos
+  const randomCode = Math.floor(100000000 + Math.random() * 900000000);
+  return randomCode.toString();
+};
+
 const RegistrationProduct = () => {
   const navigation = useNavigation();
 
   const [codigoProduto, setCodigoProduto] = useState('');
   const [erroCodigo, setErroCodigo] = useState('');
+  const [codigoGerado, setCodigoGerado] = useState(false);
 
   const [nomeProduto, setNomeProduto] = useState('');
   const [erroNome, setErroNome] = useState('');
@@ -45,6 +51,16 @@ const RegistrationProduct = () => {
 
   const [batchNumber, setBatchNumber] = useState('');
   const [showBatchError, setShowBatchError] = useState(false);
+
+  
+
+
+  const onPressRandomCode = () => {
+    const randomCode = generateRandomCode();
+    setCodigoProduto(randomCode);
+    setErroCodigo('');
+    setCodigoGerado(true); // Define codigoGerado como true
+  };
 
   useEffect(() => {
     const backHandler = BackHandler.addEventListener('hardwareBackPress', handleGoBack);
@@ -73,6 +89,7 @@ const RegistrationProduct = () => {
       const dataVencimento = moment().add(90, 'days').format('YYYY-MM-DD HH:mm:ss');
   
       const dadosProduto = {
+        codigoProduto,
         nomeProduto,
         quantityProduct,
         quantityMinimo,
@@ -99,8 +116,6 @@ const RegistrationProduct = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-
-      {/* Adicione o ícone de seta para a esquerda no canto superior esquerdo */}
       <Icon
         name="arrow-left"
         size={24}
@@ -108,20 +123,30 @@ const RegistrationProduct = () => {
         style={styles.backIcon}
         onPress={handleGoBack}
       />
-      <Text style={styles.title}>PREENCHA AS INFORMAÇÕES ABAIXO PARA FINALIZAR O CADASTRO</Text>
+      <Text style={styles.title}>CADASTRO DE PRODUTO</Text>
 
       <View style={styles.column}>
-        <Text style={styles.label}>CÓDIGO DO PRODUTO</Text>
-        <TextInput
-          style={[styles.input, erroCodigo && styles.inputError]}
-          placeholder="Digite o código do produto"
-          onChangeText={(text) => {
-            setCodigoProduto(text);
-            setErroCodigo('');
-          }}
-          value={codigoProduto}
-        />
-        <Text style={styles.errorMessage}>{erroCodigo}</Text>
+      <Text style={styles.label}>CÓDIGO DO PRODUTO</Text>
+        <View style={styles.codeInputContainer}>
+          <TextInput
+            style={[
+              styles.input,
+              erroCodigo && styles.inputError,
+              codigoGerado && styles.generatedCodeInput,
+            ]}
+            placeholder="Digite o código do produto"
+            onChangeText={() => {}}
+            value={codigoProduto}
+            editable={false}
+          />
+          <Pressable
+            style={styles.randomCodeButton}
+            onPress={onPressRandomCode}
+          >
+            <Icon name="sync" size={16} color="#fff" />
+          </Pressable>
+        </View>
+        <Text style={styles.errorMessage}>{erroNome}</Text>
 
         <Text style={styles.label}>NOME</Text>
         <TextInput
@@ -134,7 +159,6 @@ const RegistrationProduct = () => {
           value={nomeProduto}
         />
         <Text style={styles.errorMessage}>{erroNome}</Text>
-
 
         <Text style={styles.label}>QUANTIDADE:</Text>
         <View style={styles.quantityContainer}>
@@ -201,10 +225,9 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     marginTop: 50,
     padding: 16,
-    fontFamily: FontFamily.montserratRegular,
   },
   title: {
-    fontSize: 20,
+    fontSize: 25,
     fontWeight: 'bold',
     color: 'black',
     padding: 10,
@@ -216,11 +239,10 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   label: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 'bold',
     marginBottom: 8,
     color: '#1A1A27',
-    fontFamily: FontFamily.montserratRegular,
   },
   input: {
     height: 40,
@@ -229,16 +251,14 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 10,
     marginBottom: 16,
-    backgroundColor: 'white',  // Cor de fundo branca
+    backgroundColor: 'white',
   },
   errorMessage: {
     color: 'red',
     marginBottom: 16,
-    fontFamily: FontFamily.montserratRegular,
   },
   inputError: {
     borderColor: 'red',
-    fontFamily: FontFamily.montserratRegular,
   },
   buttonContainer: {
     alignItems: 'center',
@@ -250,13 +270,11 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 50,
     elevation: 2,
-    fontFamily: FontFamily.montserratRegular,
   },
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
     textAlign: 'center',
-    fontFamily: FontFamily.montserratRegular,
   },
   backButton: {
     position: 'absolute',
@@ -267,7 +285,7 @@ const styles = StyleSheet.create({
   quantityContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center', 
+    alignItems: 'center',
   },
   quantityInput: {
     flex: 1,
@@ -285,6 +303,22 @@ const styles = StyleSheet.create({
     top: 16,
     left: 80,
     zIndex: 1,
+  },
+  codeInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  randomCodeButton: {
+    backgroundColor: '#1A1A27',
+    borderRadius: 50, // Valor grande para tornar o botão redondo
+    padding: 10, // Ajuste conforme necessário
+  },
+  generatedCodeContainer: {
+    backgroundColor: '#f2f2f2', // Cor de fundo cinza claro
+  },
+  generatedCodeInput: {
+    backgroundColor: '#f2f2f2', // Cor de fundo cinza claro
   },
 });
 

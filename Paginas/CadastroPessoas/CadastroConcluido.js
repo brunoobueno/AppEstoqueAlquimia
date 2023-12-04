@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-const QuantilyProduct = () => {
+const CadastroConcluido = () => {
   const navigation = useNavigation();
 
   const handleFinished = () => {
@@ -12,11 +12,12 @@ const QuantilyProduct = () => {
     });
   };
   
+  
 
   return (
     <View style={styles.container}>
-      <Text style={styles.message}>REGISTRO CONCLUÍDO</Text>
-      <Button title="Próximo" onPress={handleFinished} color="#1A1A27" />
+      <Text style={styles.message}>Cadastro do Usuário Concluido</Text>
+      <Button title="Finalizar" onPress={handleFinished} color="#1A1A27" />
     </View>
   );
 };
@@ -37,4 +38,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default QuantilyProduct;
+export default CadastroConcluido;

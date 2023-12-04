@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Image, View, Text, TextInput, TouchableOpacity, Picker, StyleSheet } from 'react-native';
+import { FontSize, Color, FontFamily, Padding } from '../../EstilosGlobais/GlobalStyles'; // Adicionei os estilos globais
+import Icon from 'react-native-vector-icons/FontAwesome5';
 import { useNavigation } from '@react-navigation/native';
 
 const CadastroScreen = () => {
@@ -28,7 +30,9 @@ const CadastroScreen = () => {
     }));
   };
 
- 
+  const handleGoBack = () => {
+    navigation.navigate('AdministradorDashboardScreen');
+  };
 
   const handleCadastro = async () => {
     setErrorTextNome('');
@@ -94,7 +98,7 @@ const CadastroScreen = () => {
   
         if (response.status === 200) {
           console.log('Usuário cadastrado com sucesso!');
-          navigation.navigate('AdministradorDashboardScreen');
+          navigation.navigate('CadastroConcluido');
         } else {
           console.error('Erro ao cadastrar usuário:', data.message);
         }
@@ -117,6 +121,13 @@ const CadastroScreen = () => {
 
   return (
     <View style={styles.container}>
+      <Icon
+        name="arrow-left"
+        size={24}
+        color="#1A1A27"
+        style={styles.backIcon}
+        onPress={handleGoBack}
+      />
       <Text style={styles.title}>CADASTRO</Text>
 
       <Text style={styles.label}>Nome</Text>
@@ -126,7 +137,7 @@ const CadastroScreen = () => {
           setNome(text);
           setErrorTextNome('');
         }}
-        style={styles.input}
+        style={[styles.input, errorTextNome !== '' ? styles.errorInput : null]}
       />
       {errorTextNome !== '' && <Text style={styles.errorText}>{errorTextNome}</Text>}
 
@@ -140,6 +151,9 @@ const CadastroScreen = () => {
           } else if (!isValidEmail(text)) {
             setIsEmailValid(false);
             setErrorTextEmail('Digite um email válido.');
+          } else {
+            setIsEmailValid(true);
+            setErrorTextEmail('');
           }
         }}
         style={[styles.input, !isEmailValid ? styles.errorInput : null]}
@@ -155,7 +169,7 @@ const CadastroScreen = () => {
             setPassword(text);
             setErrorTextPassword('');
           }}
-          style={styles.input}
+          style={[styles.input, errorTextPassword !== '' ? styles.errorInput : null]}
         />
         <TouchableOpacity onPress={() => togglePasswordVisibility('password')} style={styles.eyeIconContainer}>
           <Image
@@ -175,7 +189,7 @@ const CadastroScreen = () => {
             setConfirmPassword(text);
             setErrorTextConfirmPassword('');
           }}
-          style={styles.input}
+          style={[styles.input, errorTextConfirmPassword !== '' ? styles.errorInput : null]}
         />
         <TouchableOpacity onPress={() => togglePasswordVisibility('confirmPassword')} style={styles.eyeIconContainer}>
           <Image
@@ -193,7 +207,7 @@ const CadastroScreen = () => {
           setUserType(itemValue);
           setErrorTextUserType('');
         }}
-        style={styles.input}
+        style={[styles.input, errorTextUserType !== '' ? styles.errorInput : null]}
       >
         <Picker.Item label="Selecione o tipo de usuário" value="" />
         <Picker.Item label="Operador" value="OPE" />
@@ -218,28 +232,23 @@ const styles = StyleSheet.create({
     width: 150,
     height: 150,
     resizeMode: 'contain',
-    marginBottom: 30,
+    marginBottom: 70,
   },
   input: {
     width: 300,
     height: 40,
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
+    borderRadius: 8,
     paddingHorizontal: 10,
     marginVertical: 10,
-  },
-  title: {
-    fontSize: 25,
-    fontWeight: 'Montserrat-Regular',
-    color: 'black',
-    padding: 10,
-    marginBottom: 20,
+    fontFamily: FontFamily.montserratRegular,
+    borderColor: '#ccc',
   },
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    position: 'relative',
   },
   eyeIconContainer: {
     position: 'absolute',
@@ -254,31 +263,26 @@ const styles = StyleSheet.create({
     backgroundColor: '#1A1A27',
     paddingVertical: 10,
     paddingHorizontal: 50,
-    borderRadius: 5,
+    borderRadius: 8,
     marginVertical: 10,
   },
   buttonText: {
     color: 'white',
-    fontSize: 15,
-    fontFamily: 'Montserrat-Regular',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   errorInput: {
     borderColor: 'red',
   },
   errorText: {
     color: 'red',
-    fontSize: 15,
-    marginTop: -5,
-    marginVertical: 10,
+    fontSize: 14,
+    marginTop: 5,
   },
   label: {
     marginVertical: 2,
     fontSize: 15,
-    fontFamily: 'Montserrat-Regular',
-  },
-  Picker: {
-    fontSize: 15,
-    fontFamily: 'Montserrat-Regular',
+    fontFamily: FontFamily.montserratRegular,
   },
 });
 

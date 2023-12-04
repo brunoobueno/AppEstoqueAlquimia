@@ -1,7 +1,9 @@
+// Importe os componentes necessários
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, FlatList, Modal, TouchableOpacity, Picker, StyleSheet } from 'react-native';
 import ListaInventario from '../../components/ListaInventario/ListaInvetario';
-
+import Icon from 'react-native-vector-icons/FontAwesome5';
+import { useNavigation } from '@react-navigation/native';
 
 const TelaInventario = () => {
   const [supervisorName, setSupervisorName] = useState('');
@@ -13,6 +15,8 @@ const TelaInventario = () => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [quantityReal, setQuantityReal] = useState('');
+
+  const navigation = useNavigation();
 
   const toggleModal = (product) => {
     setSelectedProduct(product);
@@ -26,6 +30,10 @@ const TelaInventario = () => {
     setModalVisible(!isModalVisible);
   };
 
+  const handleGoBack = () => {
+    navigation.navigate('OperadorDashboardScreen');
+  };
+
   const renderItem = ({ item }) => (
     <TouchableOpacity onPress={() => toggleModal(item)}>
       <View style={styles.productItem}>
@@ -37,7 +45,17 @@ const TelaInventario = () => {
 
   return (
     <View style={styles.container}>
+      <Icon
+        name="arrow-left"
+        size={24}
+        color="#1A1A27"
+        style={styles.backIcon}
+        onPress={handleGoBack}
+      />
+
       <Text style={styles.title}>Inventário de Estoque</Text>
+
+      <Text style={styles.descricao}> Para realizar o inventário de estoque, insira as informações solicitadas. Ao encontrar um produto, toque sobre ele para inserir a quantidade real. Lembre-se de revisar as informações antes de confirmar."</Text>
 
       <View style={styles.column}>
         <Text style={styles.label}>Nome do Supervisor</Text>
@@ -50,7 +68,13 @@ const TelaInventario = () => {
       </View>
 
       <View style={styles.column}>
-        <Text style={styles.label}>Data: {currentDate.toLocaleDateString()}</Text>
+        <Text style={styles.label}>Data</Text>
+        <TextInput
+          style={[styles.input, styles.textInput, styles.nonEditableTextInput]}
+          editable={false}
+        >
+          {currentDate.toLocaleDateString()}
+        </TextInput>
       </View>
 
       <View style={styles.column}>
@@ -72,12 +96,9 @@ const TelaInventario = () => {
           onChangeText={(text) => setObservation(text)}
         />
       </View>
+       
+      <ListaInventario products={products} />
 
-      <FlatList
-        data={products}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id.toString()}
-      />
 
       {/* Modal para a quantidade real do produto */}
       <Modal visible={isModalVisible}>
@@ -95,9 +116,6 @@ const TelaInventario = () => {
           <Button title="Fechar" onPress={() => setModalVisible(!isModalVisible)} />
         </View>
       </Modal>
-
-      <ListaInventario products={sortedProducts} onProductPress={toggleModal} />
-
     </View>
   );
 };
@@ -105,12 +123,19 @@ const TelaInventario = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    padding: 35,
   },
   title: {
-    fontSize: 20,
+    fontSize: 30,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: 10,
+    marginTop: 20,
+    textAlign: 'center',
+  },
+  descricao: {
+    textAlign: 'center',
+    marginTop: 20,
+    marginBottom: 40,
   },
   column: {
     marginBottom: 16,
@@ -132,6 +157,9 @@ const styles = StyleSheet.create({
   textInput: {
     // Adapte o estilo do TextInput conforme necessário
   },
+  nonEditableTextInput: {
+    backgroundColor: '#F2F2F2',
+  },
   productItem: {
     padding: 10,
     borderWidth: 1,
@@ -147,6 +175,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 16,
+  },
+  backIcon: {
+    position: 'absolute',
+    top: 35,
+    left: 80,
+    zIndex: 1,
   },
 });
 

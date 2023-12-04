@@ -13,7 +13,7 @@ const SuccessScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.message}>Produto adicionado com sucesso!</Text>
+      <Text style={styles.message}>Produto REMOVIDO com sucesso!</Text>
       <TouchableOpacity style={styles.button} onPress={handleOkPress}>
         <Text style={styles.buttonText}>Voltar ao inicio</Text>
       </TouchableOpacity>

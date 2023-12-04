@@ -75,15 +75,15 @@ app.get('/lista-vencimento-proximo', async (req, res) => {
 });
 
 
-//Rota para Cadastrar Produto
+// Rota para Cadastrar Produto
 app.post('/inserir-produto', async (req, res) => {
-  const { nomeProduto, quantityProduct, quantityMinimo, batchNumber, ins_medida, ins_cadastro, ins_vencimento } = req.body;
+  const { codigoProduto, nomeProduto, quantityProduct, quantityMinimo, batchNumber, ins_medida, ins_cadastro, ins_vencimento } = req.body;
 
   console.log('Recebendo requisição para cadastrar produto:', req.body);
 
   try {
     // Execute a lógica para inserir o produto no banco de dados
-    const [result] = await db.query('INSERT INTO ins_insumo (ins_nome, ins_quantidade, ins_minimo, ins_lote, ins_medida, ins_cadastro, ins_vencimento) VALUES (?, ?, ?, ?, ?, ?,? )', [nomeProduto, quantityProduct, quantityMinimo, batchNumber, ins_medida, ins_cadastro, ins_vencimento]);
+    const [result] = await db.query('INSERT INTO ins_insumo (ins_codigo, ins_nome, ins_quantidade, ins_minimo, ins_lote, ins_medida, ins_cadastro, ins_vencimento) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [codigoProduto, nomeProduto, quantityProduct, quantityMinimo, batchNumber, ins_medida, ins_cadastro, ins_vencimento]);
 
     if (result.affectedRows === 1) {
       // Produto inserido com sucesso
@@ -94,9 +94,37 @@ app.post('/inserir-produto', async (req, res) => {
     }
   } catch (error) {
     // Se ocorrer um erro durante a execução da operação no banco de dados
+    console.error('Erro ao inserir produto:', error);
     res.status(500).json({ message: 'Erro interno do servidor.' });
   }
-}); 
+});
+
+// Rota para contar produtos com divergências no estoque
+app.get('/produtos-divergencias', async (req, res) => {
+  try {
+    // Consulta ao banco de dados para contar produtos com divergências no estoque
+    const [rows] = await db.query('SELECT COUNT(*) as quantidadeProdutosDivergencias FROM inv_03122023 WHERE ins_quantidade <> inv_real');
+    const { quantidadeProdutosDivergencias } = rows[0];
+    res.status(200).json({ quantidadeProdutosDivergencias });
+  } catch (error) {
+    console.error('Erro ao contar produtos com divergências no estoque:', error);
+    res.status(500).json({ message: 'Erro interno do servidor' });
+  }
+});
+
+// Rota para obter produtos com divergências no estoque
+app.get('/lista-produtos-divergencias', async (req, res) => {
+  try {
+    // Consulta ao banco de dados para obter produtos com divergências no estoque
+    const [rows] = await db.query('SELECT * FROM inv_03122023 WHERE ins_quantidade <> inv_real');
+    res.status(200).json({ produtosDivergencias: rows });
+  } catch (error) {
+    console.error('Erro ao obter produtos com divergências no estoque:', error);
+    res.status(500).json({ message: 'Erro interno do servidor' });
+  }
+});
+
+
 
 // Rota para cadastrar um novo usuário
 app.post('/cadastrar-usuario', async (req, res) => {
@@ -173,7 +201,7 @@ app.get('/vencimento-proximo', async (req, res) => {
 app.get('/produtos-com-lacunas', async (req, res) => {
   try {
     // Consulta ao banco de dados para contar produtos com lacunas não preenchidas
-    const [rows] = await db.query('SELECT COUNT(*) as quantidadeProdutosComLacunas FROM ins_insumo WHERE ins_id IS NULL OR ins_nome IS NULL OR ins_quantidade IS NULL OR ins_medida IS NULL OR ins_lote IS NULL OR ins_preco IS NULL');
+    const [rows] = await db.query('SELECT COUNT(*) as quantidadeProdutosComLacunas FROM ins_insumo WHERE ins_id IS NULL OR ins_codigo IS NULL OR ins_nome IS NULL OR ins_quantidade IS NULL OR ins_medida IS NULL OR ins_lote IS NULL OR ins_minimo IS NULL');
 
     const { quantidadeProdutosComLacunas } = rows[0];
     res.status(200).json({ quantidadeProdutosComLacunas });
@@ -187,7 +215,7 @@ app.get('/produtos-com-lacunas', async (req, res) => {
 app.get('/lista-produtos-com-lacunas', async (req, res) => {
   try {
     // Consulta ao banco de dados para obter produtos com lacunas não preenchidas
-    const [rows] = await db.query('SELECT * FROM ins_insumo WHERE ins_id IS NULL OR ins_nome IS NULL OR ins_quantidade IS NULL OR ins_medida IS NULL OR ins_lote IS NULL OR ins_preco IS NULL');
+    const [rows] = await db.query('SELECT * FROM ins_insumo WHERE ins_id IS NULL OR ins_codigo IS NULL OR ins_nome IS NULL OR ins_quantidade IS NULL OR ins_medida IS NULL OR ins_lote IS NULL OR ins_minimo IS NULL');
 
     res.status(200).json({ produtosComLacunas: rows });
   } catch (error) {
@@ -195,6 +223,7 @@ app.get('/lista-produtos-com-lacunas', async (req, res) => {
     res.status(500).json({ message: 'Erro interno do servidor' });
   }
 });
+
 
 // Rota para atualizar um produto
 app.put('/atualizar-produto/:id', async (req, res) => {

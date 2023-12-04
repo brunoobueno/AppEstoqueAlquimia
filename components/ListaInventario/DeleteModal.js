@@ -4,16 +4,12 @@ import Modal from 'react-native-modal';
 
 const DeleteModal = ({ isVisible, product, onDelete, onCancel}) => {
   const handleDelete = async () => {
-    try {
-      await confirmDelete(product);
-      onDelete(product);
-      onCancel();
-      //navigation.navigate('DashBoardScreen');
-    } catch (error) {
-      console.error('Erro ao lidar com a exclusão:', error);
-      // Trate o erro conforme necessário
-    }
+    await confirmDelete(product);
+    onDelete(product);
+    onCancel();
+    //navigation.navigate('DashBoardScreen');
   };
+
   const confirmDelete = async (product) => {
     // Lógica para enviar solicitação de exclusão para o servidor
     try {
