@@ -46,7 +46,7 @@ const ListaInventario = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get('http://192.168.1.2:3000/produtos');
+      const response = await axios.get('http://db-alquimia.mysql.database.azure.com:3000/produtos');
       setSortedProducts(response.data);
     } catch (error) {
       console.error('Erro ao buscar produtos:', error);

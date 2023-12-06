@@ -1,23 +1,34 @@
 const express = require('express');
 const mysql = require('mysql2/promise');
-const cors = require('cors'); // Importe o módulo CORS
+const cors = require('cors');
 const app = express();
-const port = 3000;
-const moment = require('moment');
+const port = process.env.PORT || 3000;
 
-
-// Configuração da conexão com o banco de dados
-const db = mysql.createPool({
-  host: 'localhost',
-  user: 'root',
-  password: '',
+const dbConfig = {
+  host: 'db-alquimia.mysql.database.azure.com',
+  port: 3306,
+  user: 'alquimia',
+  password: 'fatec@123',
   database: 'db_alquimia',
-});
+};
 
 app.use(express.json());
-
-// Use o middleware CORS com as opções personalizadas
 app.use(cors());
+
+const pool = mysql.createPool(dbConfig);
+
+// Função para executar consultas no banco de dados
+async function executeQuery(sql, values = []) {
+  const connection = await pool.getConnection();
+  try {
+    const [results] = await connection.query(sql, values);
+    return results;
+  } catch (error) {
+    throw error;
+  } finally {
+    connection.release(); // Liberar a conexão de volta para o pool
+  }
+}
 
 // Rota de autenticação
 app.post('/login', async (req, res) => {
@@ -314,6 +325,27 @@ app.put('/subtrair-quantidade/:id', async (req, res) => {
     res.status(500).json({ message: 'Erro interno do servidor.' });
   }
 });
+
+// Rota para atualizar a quantidade real de um produto na tabela Inventário
+app.put('/atualizar-quantidade-real/:id', async (req, res) => {
+  const productId = req.params.id;
+  const { quantidadeReal } = req.body;
+
+  try {
+    // Execute a lógica para atualizar a quantidade real do produto na tabela inv_03122023
+    const [result] = await db.query('UPDATE inv_03122023 SET inv_real = ? WHERE ins_id = ?', [quantidadeReal, productId]);
+
+    if (result.affectedRows === 1) {
+      res.status(200).json({ message: 'Quantidade real do produto atualizada com sucesso.' });
+    } else {
+      res.status(404).json({ message: 'Produto não encontrado na tabela inv_03122023.' });
+    }
+  } catch (error) {
+    console.error('Erro ao atualizar a quantidade real do produto na tabela inv_03122023:', error);
+    res.status(500).json({ message: 'Erro interno do servidor.' });
+  }
+});
+
 
 
 

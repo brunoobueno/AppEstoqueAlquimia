@@ -1,4 +1,3 @@
-// Importe os componentes necessários
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, FlatList, Modal, TouchableOpacity, Picker, StyleSheet } from 'react-native';
 import ListaInventario from '../../components/ListaInventario/ListaInvetario';
@@ -23,11 +22,29 @@ const TelaInventario = () => {
     setModalVisible(!isModalVisible);
   };
 
-  const handleConfirmModal = () => {
-    // Lógica para confirmar a quantidade e atualizar a lista de produtos
-    // ...
-
-    setModalVisible(!isModalVisible);
+  const handleConfirmModal = async () => {
+    try {
+      const response = await fetch(`http://db-alquimia.mysql.database.azure.com:3000/atualizar-quantidade-real/${selectedProduct.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          quantidadeReal: quantityReal,
+        }),
+      });
+  
+      console.log('Response:', response);
+      console.log('Response JSON:', await response.json());
+  
+      if (!response.ok) {
+        throw new Error('Erro ao atualizar a quantidade real do produto');
+      }
+  
+      setModalVisible(false); // Feche o modal após a confirmação bem-sucedida
+    } catch (error) {
+      console.error('Erro ao atualizar a quantidade real do produto:', error);
+    }
   };
 
   const handleGoBack = () => {
@@ -98,7 +115,6 @@ const TelaInventario = () => {
       </View>
        
       <ListaInventario products={products} />
-
 
       {/* Modal para a quantidade real do produto */}
       <Modal visible={isModalVisible}>

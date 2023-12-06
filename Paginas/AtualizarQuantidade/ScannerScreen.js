@@ -22,7 +22,7 @@ const ScannerScreen = ({ route }) => {
     setScanned(true);
 
     try {
-      const response = await axios.get(`http://192.168.1.2:3000/produtos?ins_codigo=${parseInt(data, 10)}`);
+      const response = await axios.get(`http://db-alquimia.mysql.database.azure.com:3000/produtos?ins_codigo=${parseInt(data, 10)}`);
 
       if (response.data.length > 0) {
         const insumoEncontrado = response.data.find(product => product.ins_codigo === parseInt(data, 10));

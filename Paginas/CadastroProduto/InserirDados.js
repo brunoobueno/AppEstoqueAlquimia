@@ -12,7 +12,7 @@ const unidades = ['Selecione', 'ML', 'LT', 'UN', 'g', 'KG'];
 const cadastrarProduto = async (dadosProduto) => {
   try {
     const response = await axios.post(
-      'http://localhost:3000/inserir-produto',
+      'http://db-alquimia.mysql.database.azure.com:3000/inserir-produto',
       dadosProduto
     );
 

@@ -24,7 +24,6 @@ function Navigation() {
       <Stack.Navigator initialRouteName="Splash" screenOptions={{ headerShown: false }}>
         <Stack.Screen name='SplashScreenComponent' component={SplashScreenComponent} />
         <Stack.Screen name='LoginScreen' component={LoginScreen} />
-        <Stack.Screen name='AdministradorDashboardScreen' component={AdministradorDashboardScreen} />
         <Stack.Screen name='OperadorDashboardScreen' component={OperadorDashboardScreen} />
         <Stack.Screen name="RegistrationProduct" component={RegistrationProduct} />
         <Stack.Screen name="CadastroPessoas" component={CadastroScreen} />

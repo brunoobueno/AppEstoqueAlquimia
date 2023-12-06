@@ -28,7 +28,7 @@ const AtualizarADC = ({ route }) => {
     try {
       setModalVisible(false); // Ocultar modal após a confirmação
 
-      const response = await axios.put(`http://192.168.1.2:3000/adicionar-quantidade/${insId}`, {
+      const response = await axios.put(`http://db-alquimia.mysql.database.azure.com:3000/adicionar-quantidade/${insId}`, {
         quantidade: parseInt(quantityProduct),
       });
 
@@ -55,7 +55,7 @@ const AtualizarADC = ({ route }) => {
         onPress={handleGoBack}
       />
 
-      <Text style={styles.title}>Digite a Quantidade para Atualizar o Produto</Text>
+      <Text style={styles.title}>Digite a Quantidade que Deseja Adicionar ao Produto:</Text>
       <Text style={styles.title1}>{insNome}</Text>
 
       <View style={styles.inputContainer}>
@@ -104,7 +104,7 @@ const AtualizarADC = ({ route }) => {
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.modalButton}
-                onPress={confirmarAdicao}
+                onPress={confirmarAdicao} 
               >
                 <Text style={styles.modalButtonText}>Confirmar</Text>
               </TouchableOpacity>

@@ -28,7 +28,7 @@ const AtualizarREM = ({ route }) => {
     try {
       setModalVisible(false); // Ocultar modal após a confirmação
 
-      const response = await axios.put(`http://192.168.1.2:3000/subtrair-quantidade/${insId}`, {
+      const response = await axios.put(`http://db-alquimia.mysql.database.azure.com:3000/subtrair-quantidade/${insId}`, {
         quantidade: parseInt(quantityProduct),
       });
 
@@ -55,7 +55,7 @@ const AtualizarREM = ({ route }) => {
         onPress={handleGoBack}
       />
 
-      <Text style={styles.title}>Digite a Quantidade para Atualizar o Produto</Text>
+      <Text style={styles.title}>Digite a Quantidade que Deseja Remover do Produto:</Text>
       <Text style={styles.title1}>{insNome}</Text>
 
       <View style={styles.inputContainer}>
@@ -77,7 +77,7 @@ const AtualizarREM = ({ route }) => {
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.button} onPress={handleSubtract}>
-          <Text style={styles.buttonText}>Subtrair</Text>
+          <Text style={styles.buttonText}>Remover</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.button} onPress={handleGoBack}>
@@ -93,7 +93,7 @@ const AtualizarREM = ({ route }) => {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalText}>Deseja realmente Subtrair?</Text>
+            <Text style={styles.modalText}>Deseja realmente Remover?</Text>
 
             <View style={styles.modalButtonContainer}>
               <TouchableOpacity

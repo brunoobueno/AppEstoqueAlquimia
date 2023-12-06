@@ -47,7 +47,7 @@ const SplashScreenComponent = () => {
 
         try {
 
-          const response = await axios.post('http://192.168.1.2:3000/login', {
+          const response = await axios.post('http://db-alquimia.mysql.database.azure.com:3000/login', {
             email: getLoginObj.email,
             password: getLoginObj.password,
           });

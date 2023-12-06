@@ -95,7 +95,7 @@ const AdministradorDashboardScreen = () => {
 
   const openModal = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/lista-estoque-baixo');
+      const response = await axios.get('http://db-alquimia.mysql.database.azure.com:3000/lista-estoque-baixo');
       setSelectedProducts(response.data.produtosEstoqueBaixo);
       toggleModal();
     } catch (error) {
@@ -105,7 +105,7 @@ const AdministradorDashboardScreen = () => {
 
   const openModal2 = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/lista-vencimento-proximo');
+      const response = await axios.get('http://db-alquimia.mysql.database.azure.com:3000/lista-vencimento-proximo');
       setVencimentoProximoProducts(response.data.produtosVencimentoProximo);
       toggleModal2();
     } catch (error) {
@@ -115,7 +115,7 @@ const AdministradorDashboardScreen = () => {
 
   const openModal3 = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/lista-produtos-com-lacunas');
+      const response = await axios.get('http://db-alquimia.mysql.database.azure.com:3000/lista-produtos-com-lacunas');
       setProdutosComLacunas(response.data.produtosComLacunas);
       toggleModal3();
     } catch (error) {
@@ -139,10 +139,10 @@ const AdministradorDashboardScreen = () => {
 
   const fetchProdutosDivergencias = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/produtos-divergencias');
+      const response = await axios.get('http://db-alquimia.mysql.database.azure.com:3000/produtos-divergencias');
       setQuantidadeProdutosDivergencias(response.data.quantidadeProdutosDivergencias);
 
-      const produtosResponse = await axios.get('http://localhost:3000/lista-produtos-divergencias');
+      const produtosResponse = await axios.get('http://db-alquimia.mysql.database.azure.com:3000/lista-produtos-divergencias');
       setProdutosDivergencias(produtosResponse.data.produtosDivergencias);
     } catch (error) {
       console.error('Erro ao buscar produtos com divergências no estoque:', error);
@@ -153,7 +153,7 @@ const AdministradorDashboardScreen = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/produtos');
+        const response = await axios.get('http://db-alquimia.mysql.database.azure.com:3000/produtos');
         setAllProducts(response.data);
       } catch (error) {
         console.error('Erro ao buscar produtos:', error);
@@ -162,7 +162,7 @@ const AdministradorDashboardScreen = () => {
 
     const fetchEstoqueBaixo = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/estoque-baixo');
+        const response = await axios.get('http://db-alquimia.mysql.database.azure.com:3000/estoque-baixo');
         setEstoqueBaixo(response.data.quantidadeEstoqueBaixo);
       } catch (error) {
         console.error('Erro ao buscar produtos com estoque baixo:', error);
@@ -171,7 +171,7 @@ const AdministradorDashboardScreen = () => {
 
     const fetchVencimentoProximo = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/vencimento-proximo');
+        const response = await axios.get('http://db-alquimia.mysql.database.azure.com:3000/vencimento-proximo');
         setVencimentoProximo(response.data.quantidadeVencimentoProximo);
       } catch (error) {
         console.error('Erro ao buscar itens com vencimento próximo:', error);
@@ -180,7 +180,7 @@ const AdministradorDashboardScreen = () => {
 
     const fetchItensComLacunas = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/produtos-com-lacunas');
+        const response = await axios.get('http://db-alquimia.mysql.database.azure.com:3000/produtos-com-lacunas');
         setItensComLacunas(response.data.quantidadeProdutosComLacunas);
       } catch (error) {
         console.error('Erro ao buscar itens com lacunas:', error);

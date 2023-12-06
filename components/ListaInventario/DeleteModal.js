@@ -13,7 +13,7 @@ const DeleteModal = ({ isVisible, product, onDelete, onCancel}) => {
   const confirmDelete = async (product) => {
     // Lógica para enviar solicitação de exclusão para o servidor
     try {
-      const response = await fetch(`http://localhost:3000/excluir-produto/${product.ins_id}`, {
+      const response = await fetch(`http://db-alquimia.mysql.database.azure.com:3000/excluir-produto/${product.ins_id}`, {
         method: 'DELETE',
       });
 

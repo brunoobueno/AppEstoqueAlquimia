@@ -81,7 +81,7 @@ const CadastroScreen = () => {
 
     if (isValid) {
       try {
-        const response = await fetch('http://localhost:3000/cadastrar-usuario', {
+        const response = await fetch('http://db-alquimia.mysql.database.azure.com:3000/cadastrar-usuario', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

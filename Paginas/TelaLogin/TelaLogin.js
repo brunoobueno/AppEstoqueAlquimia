@@ -52,9 +52,10 @@ const LoginScreen = () => {
     }
 
     try {
-      const response = await axios.post('http://192.168.1.2:3000/login', {
+      const response = await axios.post('http://db-alquimia.mysql.database.azure.com:3000/login', {
         email: email,
         password: password,
+        timeout: 15000, // Aumente o tempo limite para 15 segundos (ou o valor desejado)
       });
 
       if (response.status === 200) {

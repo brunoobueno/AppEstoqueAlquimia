@@ -68,7 +68,7 @@ const ListaProdutos = ({ products }) => {
     const productId = editedProduct.ins_id; // Supondo que ins_id seja a chave correta para identificar o produto no backend
 
     try {
-      const response = await fetch(`http://192.168.1.2:3000/atualizar-produto/${productId}`, {
+      const response = await fetch(`http://db-alquimia.mysql.database.azure.com:3000/atualizar-produto/${productId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
